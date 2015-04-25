@@ -13,7 +13,7 @@ valid_commit_types = ['feat', 'fix', 'docs', 'style', 'refactor',
         'perf', 'test', 'chore', ]
 valid_commit_scopes = ['core', 'builder', 'client', ]
 commit_file = sys.argv[1]
-help_address = 'https://github.com/unix-thrust/beurk/wiki/Commits'
+help_address = 'https://github.com/unix-thrust/beurk/wiki/Commits-Guidelines'
 
 with open(commit_file) as commit:
     lines = commit.readlines()
