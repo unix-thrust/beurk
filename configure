@@ -1,5 +1,21 @@
 #!/usr/bin/env python2
 
+import sys, re, os.path
+
+dependencies = ['libpam', 'libpcap', 'libssl', ]
+lib_directories = ['/lib/', '/usr/lib/', ]
+
+missing_dep = 0
+for dependency in dependencies:
+    for directory in lib_directories:
+        if os.path.isfile(directory + dependency + '.so'):
+            break
+    else:
+        sys.stderr.write("\nDependency not satisfied: %s\n" % dependency)
+        missing_dep += 1
+if missing_dep:
+    sys.exit(1)
+
 MAKEFILE_TEMPLATE = """
 all: {libname}
 
@@ -9,3 +25,5 @@ all: {libname}
 clean:
     @echo "--> calling clean target"
 """
+
+sys.exit(0)
