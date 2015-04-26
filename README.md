@@ -1,6 +1,6 @@
 BEURK
 =====
-[Wiki] | [API Documentation] | [Getting Started] | [Contributing]
+[Getting Started] | [API Documentation] | [Contributing] | [TODO List]
 
 [![Build Status](https://travis-ci.org/unix-thrust/beurk.svg?branch=master)](https://travis-ci.org/unix-thrust/beurk)
 [![Ready Issues](https://badge.waffle.io/unix-thrust/beurk.svg?label=Ready&title=Ready-Issues)](https://waffle.io/unix-thrust/beurk)
@@ -57,9 +57,9 @@ _**please checkout current [development branch].**_
 
 -------------------------------------------------------------------------------
 
-[Wiki]: https://github.com/unix-thrust/beurk/wiki
+[Getting Started]: https://github.com/unix-thrust/beurk/wiki
 [API Documentation]: https://github.com/unix-thrust/beurk/wiki/API-Documentation
-[Getting Started]: https://github.com/unix-thrust/beurk/wiki/Getting-Started
+[TODO List]: https://github.com/unix-thrust/beurk/blob/master/TODO.md
 [Contributing]: https://github.com/unix-thrust/beurk/blob/master/CONTRIBUTING.md
 
 [preload rootkit]: http://volatility-labs.blogspot.fr/2012/09/movp-24-analyzing-jynx-rootkit-and.html
