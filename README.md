@@ -45,15 +45,15 @@ around anti-debugging and anti-detection.
     ./client victim_ip:port # connect with furtive backdoor
 ```
 
-### Usage ###
+### Dependencies ###
 
 The following packages are required in order to build BEURK:
 
-* **libpcap-dev** - to avoid local sniffing
-* **libpam-dev** - for local PAM backdoor
-* **libssl-dev** - for encrypted backdoor connection
+* **libpcap** - to avoid local sniffing
+* **libpam** - for local PAM backdoor
+* **libssl** - for encrypted backdoor connection
 
-**On debian:**
+**Example on debian:**
 ```sh
     apt-get install libpcap-dev libpam-dev libssl-dev
 ```
