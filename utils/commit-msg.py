@@ -16,7 +16,9 @@ commit_file = sys.argv[1]
 help_address = 'https://github.com/unix-thrust/beurk/wiki/Commits-Guidelines'
 
 with open(commit_file) as commit:
-    lines = commit.readlines()
+    lines = commit.read().splitlines()
+    # abracadabra: remove all comments from the list of lines ;)
+    lines = [l for l in lines if not l.lstrip().startswith("#")]
     if len(lines) == 0:
         sys.stderr.write("\nEmpty commit message\n")
         sys.stderr.write("\n - Please refer to commit guide: %s\n\n"
@@ -64,7 +66,14 @@ with open(commit_file) as commit:
                 % help_address)
         sys.exit(1)
 
-    if len(lines) > 1 and lines[1].strip():
+    if line != line.strip():
+        sys.stderr.write("\nFirst commit message line (header) "
+                "contains leading or ending spaces\n")
+        sys.stderr.write("\n - Please refer to commit guide: %s\n\n"
+                % help_address)
+        sys.exit(1)
+
+    if len(lines) > 1:
         sys.stderr.write("\nSecond commit message line must be empty\n")
         sys.stderr.write("\n - Please refer to commit guide: %s\n\n"
                 % help_address)
@@ -76,8 +85,9 @@ with open(commit_file) as commit:
         sys.stderr.write("\n - Please refer to commit guide: %s\n\n"
                 % help_address)
         sys.exit(1)
+
     for l in lines:
-        if len(l) > 72 and l[0] != '#':
+        if len(l) > 72:
             sys.stderr.write("\nFollowing line is exceeding the "
                     "72 chars limit:\n")
             sys.stderr.write(l)
