@@ -5,6 +5,7 @@ BEURK's TODO List
 - [ ] Implement **DEBUG_MODE** (as defined in API Documentation)
 - [ ] Fix `is_owner && return` on `fopen()` hook
 - [ ] Add an `uninstallation feature` on **DEMUG_MODE**
+- [ ] Add `chdir()` hooking (for hidden directories)
 
 
 ### Client (PTY backdoor connection client)
