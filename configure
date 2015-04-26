@@ -1,0 +1,11 @@
+#!/usr/bin/env python2
+
+MAKEFILE_TEMPLATE = """
+all: {libname}
+
+{libname}:
+    @echo "--> calling {libname} target"
+
+clean:
+    @echo "--> calling clean target"
+"""
