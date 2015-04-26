@@ -11,9 +11,10 @@ for dependency in dependencies:
         if os.path.isfile(directory + dependency + '.so'):
             break
     else:
-        sys.stderr.write("\nDependency not satisfied: %s\n" % dependency)
+        sys.stderr.write("\nDependency not satisfied: %s" % dependency)
         missing_dep += 1
 if missing_dep:
+    sys.stderr.write("\n\n")
     sys.exit(1)
 
 MAKEFILE_TEMPLATE = """
