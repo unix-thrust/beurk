@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 """
 Git commit hook
@@ -77,7 +77,7 @@ with open(commit_file) as commit:
                 % help_address)
         sys.exit(1)
     for l in lines:
-        if len(l) > 72:
+        if len(l) > 72 and l[0] != '#':
             sys.stderr.write("\nFollowing line is exceeding the "
                     "72 chars limit:\n")
             sys.stderr.write(l)
