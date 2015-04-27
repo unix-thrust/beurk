@@ -2,6 +2,7 @@ BEURK's TODO List
 =================
 
 ### Core (evil hooking library)
+- [ ] Skeleton must support build without dependencies
 - [ ] Implement **DEBUG_MODE** (as defined in API Documentation)
 - [ ] Fix `is_owner && return` on `fopen()` hook
 - [ ] Add an `uninstallation feature` on **DEMUG_MODE**
