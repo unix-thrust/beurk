@@ -19,3 +19,9 @@
  */
 
 #include "beurk.h"
+
+
+void        init(void)
+{
+    DEBUG("init() constructor loaded");
+}
