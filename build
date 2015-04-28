@@ -1,0 +1,37 @@
+#!/usr/bin/env python2
+
+import sys, re, os.path
+
+# check if dependencies are satisfied
+def check_lib_dependencies():
+    deps = {"libpam": "security/pam_appl.h",
+            "libssl": "openssl/sha.h",
+            "libpcap": "pcap/pcap.h"}
+    
+    include_path = [
+            "/usr/include",
+            "/usr/local/include"]
+
+    missing_deps = 0
+    for dep, header in deps.items():
+        for include_dir in include_path:
+            header_path = os.path.join(include_dir, header)
+            if os.path.isfile(header_path):
+                break
+        else:
+            msg = "Dependency not satisfied: %s-dev (header files)."
+            sys.stderr.write("%s\n" % msg % dependency)
+            missing_deps += 1
+    if missing_dep:
+        sys.exit(1)
+
+
+MAKEFILE_TEMPLATE = """
+all: {libname}
+
+{libname}:
+    @echo "--> calling {libname} target"
+
+clean:
+    @echo "--> calling clean target"
+"""

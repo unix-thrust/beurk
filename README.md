@@ -32,8 +32,7 @@ around anti-debugging and anti-detection.
 ```sh
     git clone https://github.com/unix-thrust/beurk.git
     cd beurk
-    # eventually edit beurk.conf
-    ./configure && make
+    ./build beurk.conf
 ```
 * **Install**
 ```sh
