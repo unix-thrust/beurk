@@ -1,7 +1,9 @@
 #!/usr/bin/env python2
 
 import sys, os
+import commands
 from pprint import pprint
+
 
 # special types for config var values
 def type_str(v):
@@ -118,7 +120,14 @@ for key, val in os.environ.items():
 ###############################################################################
 ### compile library
 
+# chdir to project root directory
+ret, out = commands.getstatusoutput("git rev-parse --show-toplevel")
+if ret == 0:
+    os.chdir(out.strip())
+
 def run_build_command(cmd):
+    """function which runs a build shell command
+    """
     cmd = cmd.format(**config)
     print(cmd)
     if os.system(cmd) != 0:
