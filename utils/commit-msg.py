@@ -21,10 +21,10 @@ editor = os.environ.get('EDITOR', 'vim')
 
 def bad_commit(errmsg, line=""):
     if line:
-        sys.stderr.write("\nFollowing line is not formatted right:\n%s\n"
-                % line)
+        sys.stderr.write("\nThe following line does not follow our "
+                "guidelines:\n%s\n" % line)
     sys.stderr.write("\n%s\n" % errmsg)
-    sys.stderr.write("\n - Please refer to commit guide: %s\n"
+    sys.stderr.write("\nPlease refer to our commit guidelines:\n - %s\n"
             % help_address)
     if is_piped:
         sys.exit(1)
@@ -38,7 +38,6 @@ while True:
 
         if len(lines) == 0:
             bad_commit(commit, "Empty commit message")
-            continue
 
         # first line
         line = lines[0]
@@ -71,9 +70,14 @@ while True:
         if commit_message[0].isupper():
             bad_commit("Commit subject first char not lowercase", line)
 
-        if commit_message[-1] == '.':
+        if commit_message.endswith('.'):
             bad_commit("Commit subject last char (a dot) "
                     "is not allowed", line)
+
+        verb = re.search('^(.*) *', commit_message).groups()[0]
+        if verb.endswith("ing") or verb.endswith("ed"):
+            bad_commit("Commit subject must use imperative, present tense: "
+                    "\"change\", not \"changed\" nor \"changing\"", line)
 
         if line != line.strip():
             bad_commit("First commit message line (header) "
