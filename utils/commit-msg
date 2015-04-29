@@ -1,0 +1,3 @@
+#! /bin/sh
+exec < /dev/tty
+python2 utils/commit-msg.py $1
