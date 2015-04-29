@@ -17,4 +17,4 @@ env:
     - CC=clang
 
 script:
-    ./build
+    ./tests/run.sh
