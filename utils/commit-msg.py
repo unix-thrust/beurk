@@ -13,86 +13,95 @@ from subprocess import call
 valid_commit_types = ['feat', 'fix', 'docs', 'style', 'refactor',
         'perf', 'test', 'chore', ]
 valid_commit_scopes = ['core', 'builder', 'client', ]
-commit_file = sys.argv[1]
 help_address = 'https://github.com/unix-thrust/beurk/wiki/Commit-Guidelines'
 
+is_piped = True if len(sys.argv) == 1 else False
+commit = sys.stdin if is_piped else open(sys.argv[1], 'r+a')
 editor = os.environ.get('EDITOR', 'vim')
 
-def bad_commit(commit, errmsg):
+def bad_commit(errmsg, line=""):
+    if line:
+        sys.stderr.write("\nFollowing line is not formatted right:\n%s\n"
+                % line)
     sys.stderr.write("\n%s\n" % errmsg)
     sys.stderr.write("\n - Please refer to commit guide: %s\n"
             % help_address)
+    if is_piped:
+        sys.exit(1)
     raise SyntaxError(errmsg)
 
 while True:
-    with open(commit_file, 'r+a') as commit:
-        try:
-            lines = commit.read().splitlines()
-            # abracadabra: remove all comments from the list of lines ;)
-            lines = [l for l in lines if not l.lstrip().startswith("#")]
-            if len(lines) == 0:
-                bad_commit(commit, "Empty commit message")
-                continue
+    try:
+        lines = commit.read().splitlines()
+        # abracadabra: remove all comments from the list of lines ;)
+        lines = [l for l in lines if not l.lstrip().startswith("#")]
 
-            # first line
-            line = lines[0]
-            if len(line) > 50:
-                bad_commit(commit, "First commit message line (header) "
-                        "is exceeding the 50 chars limit")
+        if len(lines) == 0:
+            bad_commit(commit, "Empty commit message")
+            continue
 
-            m = re.search('^(.*)\((.*)\): (.*)$', line)
+        # first line
+        line = lines[0]
 
-            if not m or len(m.groups()) != 3:
-                bad_commit(commit, "First commit message line (header) "
-                        "does not follow format: type(scope): message")
+        # ignore any Merge
+        if line.startswith("Merge"):
+            sys.exit(0)
 
-            commit_type, commit_scope, commit_message = m.groups()
+        if len(line) > 50:
+            bad_commit("First commit message line (header) "
+                    "is exceeding the 50 chars limit", line)
 
-            if commit_type not in valid_commit_types:
-                bad_commit(commit, "Commit type not in valid ones: %s"
-                        % ", ".join(valid_commit_types))
+        m = re.search('^(.*)\((.*)\): (.*)$', line)
 
-            if commit_scope not in valid_commit_scopes \
-                    and commit_type not in ["docs", "chore"]:
-                bad_commit(commit, "Commit scope not in valid ones: %s"
-                        % ", ".join(valid_commit_scopes))
+        if not m or len(m.groups()) != 3:
+            bad_commit("First commit message line (header) does not "
+                    "follow format: type(scope): message", line)
 
-            if commit_message[0].isupper():
-                bad_commit(commit, "Commit subject first char not lowercase")
+        commit_type, commit_scope, commit_message = m.groups()
 
-            if commit_message[-1] == '.':
-                bad_commit(commit, "Commit subject last char (a dot) "
-                        "is not allowed")
+        if commit_type not in valid_commit_types:
+            bad_commit("Commit type not in valid ones: %s"
+                    % ", ".join(valid_commit_types), line)
 
-            if line != line.strip():
-                bad_commit(commit, "First commit message line (header) "
-                        "contains leading or ending spaces")
+        if commit_scope not in valid_commit_scopes \
+                and commit_type not in ["docs", "chore"]:
+            bad_commit("Commit scope not in valid ones: %s"
+                    % ", ".join(valid_commit_scopes), line)
 
-            if len(lines) > 1 and lines[1]:
-                bad_commit(commit, "Second commit message line must be empty")
+        if commit_message[0].isupper():
+            bad_commit("Commit subject first char not lowercase", line)
 
-            if len(lines) > 2 and not lines[2].strip():
-                bad_commit(commit, "Third commit message line (body) "
-                        "can't be empty")
+        if commit_message[-1] == '.':
+            bad_commit("Commit subject last char (a dot) "
+                    "is not allowed", line)
 
-            for l in lines:
-                if len(l) > 72:
-                    bad_commit(commit, "Following line is exceeding the "
-                            "72 chars limit:\n%s" % l)
+        if line != line.strip():
+            bad_commit("First commit message line (header) "
+                    "contains leading or ending spaces", line)
 
-        # We catch that an error has happened and react accordingly
-        except SyntaxError as err:
-            if raw_input("Do you want to edit it? (Your commit will "
-                    "be rejected otherwise) [Y/n] ").lower() == 'y':
-                commit.write("# %s\n#" % err)
-                commit.write("\n# - Please refer to commit guide: %s\n"
-                        % help_address)
-                sys.stderr.write('\n')
-                commit.close()
-                call('%s %s' % (editor, commit_file), shell=True)
-                continue
-            else:
-                sys.exit(1)
+        if len(lines) > 1 and lines[1]:
+            bad_commit("Second commit message line must be empty")
 
+        if len(lines) > 2 and not lines[2].strip():
+            bad_commit("Third commit message line (body) "
+                    "can't be empty", lines[2])
+
+        for l in lines:
+            if len(l) > 72:
+                bad_commit("This line is exceeding the 72 chars limit", l)
+
+    # We catch that an error has happened and react accordingly
+    except SyntaxError as err:
+        if raw_input("Do you want to edit it? (Your commit will "
+                "be rejected otherwise) [Y/n] ").lower() == 'y':
+            commit.write("# %s\n#" % err)
+            commit.write("\n# - Please refer to commit guide: %s\n"
+                    % help_address)
+            sys.stderr.write('\n')
+            commit.close()
+            call('%s %s' % (editor, commit_file), shell=True)
+            continue
+        else:
+            sys.exit(1)
     break
 sys.exit(0)
