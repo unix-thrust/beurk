@@ -1,3 +1,5 @@
+#!/bin/sh
+
 ROOTDIR=$(git rev-parse --show-toplevel)
 count=0
 err_count=0
