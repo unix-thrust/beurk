@@ -1,3 +1,9 @@
+before_install:
+    - sudo apt-get update -qq
+    - sudo apt-get install libpam-dev
+    - sudo apt-get install libssl-dev
+    - sudo apt-get install libpcap-dev
+
 notifications:
   webhooks:
     urls:
