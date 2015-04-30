@@ -16,7 +16,6 @@ valid_commit_scopes = ['core', 'builder', 'client', ]
 help_address = 'https://github.com/unix-thrust/beurk/wiki/Commit-Guidelines'
 
 is_piped = True if len(sys.argv) == 1 else False
-commit = sys.stdin if is_piped else open(sys.argv[1], 'r+a')
 editor = os.environ.get('EDITOR', 'vim')
 
 def bad_commit(errmsg, line=""):
@@ -31,6 +30,7 @@ def bad_commit(errmsg, line=""):
     raise SyntaxError(errmsg)
 
 while True:
+    commit = sys.stdin if is_piped else open(sys.argv[1], 'r+a')
     try:
         lines = commit.read().splitlines()
         # abracadabra: remove all comments from the list of lines ;)
@@ -76,8 +76,8 @@ while True:
 
         verb = re.search('^(.*) *', commit_message).groups()[0]
         if verb.endswith("ing") or verb.endswith("ed"):
-            bad_commit("Commit subject must use imperative, present tense: "
-                    "\"change\", not \"changed\" nor \"changing\"", line)
+            bad_commit("Commit subject must use imperative, present tense:\n"
+                    "- \"change\", not \"changed\" nor \"changing\"", line)
 
         if line != line.strip():
             bad_commit("First commit message line (header) "
@@ -98,12 +98,12 @@ while True:
     except SyntaxError as err:
         if raw_input("Do you want to edit it? (Your commit will "
                 "be rejected otherwise) [Y/n] ").lower() == 'y':
-            commit.write("# %s\n#" % err)
-            commit.write("\n# - Please refer to commit guide: %s\n"
-                    % help_address)
+            commit.write("#\n# %s\n#" % err)
+            commit.write("\n# - Please refer to our commit guidelines:\n"
+                    "# %s\n" % help_address)
             sys.stderr.write('\n')
             commit.close()
-            call('%s %s' % (editor, commit_file), shell=True)
+            call('%s %s' % (editor, sys.argv[1]), shell=True)
             continue
         else:
             sys.exit(1)
