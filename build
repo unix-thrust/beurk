@@ -296,7 +296,13 @@ for source in SOURCES:
 
 # build library from objects
 objects = " ".join([x.replace(".c", ".o") for x in SOURCES])
-run_build_command("{CC} -fPIC -shared -Wl,-soname,{LIBRARY_NAME} " \
+
+if "unknown option" in commands.getoutput("ld -soname /dev/null").lower():
+    set_ld_soname = ""
+else:
+    set_ld_soname = "-Wl,-soname,{LIBRARY_NAME}".format(**config)
+
+run_build_command("{CC} -fPIC -shared " + set_ld_soname \
         + objects + " {LDFLAGS} -o {LIBRARY_NAME}")
 
 # strip if no debug mode
