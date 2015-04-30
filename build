@@ -53,6 +53,7 @@ def type_hexbyte(v):
 CONFIG_KEYS = {
         "LIBRARY_NAME": type_str,
         "DEBUG_LEVEL": type_int,
+        "DEBUG_FILE": type_hidden_literal,
         "ENABLE_PTRACE": type_bool,
         "ENABLE_PAM": type_bool,
         "ENABLE_PCAP": type_bool,
