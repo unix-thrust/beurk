@@ -2,10 +2,10 @@
 
 ROOTDIR=$(git rev-parse --show-toplevel)
 TESTDIR=${ROOTDIR}/tests
-array=( "ci" "core-unittest" )
+array="ci core-unittest"
 err_count=0
 
-for element in ${array[@]}
+for element in ${array}
 do
   ${TESTDIR}/$element/run.sh
   (( err_count += $? ))
