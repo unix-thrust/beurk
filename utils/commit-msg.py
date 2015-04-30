@@ -74,7 +74,7 @@ while True:
             bad_commit("Commit subject last char (a dot) "
                     "is not allowed", line)
 
-        verb = re.search('^(.*) *', commit_message).groups()[0]
+        verb = commit_message.split()[0]
         if verb.endswith("ing") or verb.endswith("ed"):
             bad_commit("Commit subject must use imperative, present tense:\n"
                     "- \"change\", not \"changed\" nor \"changing\"", line)
