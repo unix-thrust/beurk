@@ -16,4 +16,4 @@ BEURK's TODO List
 ### Builder (Makefile and config file builder)
 - [ ] Create a lite, basic Makefile
 - [ ] Describe config-file variables for building
-- [ ] Check for dependencies in Makefile
+- [x] Check for dependencies in Makefile
