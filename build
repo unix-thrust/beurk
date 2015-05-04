@@ -275,6 +275,7 @@ def run_build_command(cmd):
 
 SOURCES = [
         "src/beurk.c",
+        "src/hook.c",
         ]
 
 config["CFLAGS"] = """
