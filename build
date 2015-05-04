@@ -310,4 +310,4 @@ run_build_command("{CC} -fPIC -shared " + set_ld_soname \
 
 # strip if no debug mode
 if config["DEBUG_LEVEL"] == 0:
-    run_build_command("strip {LIBRARY_NAME}")
+    run_build_command("strip --strip-unneeded -R .note -R .comment {LIBRARY_NAME}")
