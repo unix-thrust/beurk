@@ -173,10 +173,9 @@ HEADER += macros
 
 # add hidden literals to config.h
 
-def xor(string):
+def xor(string, key):
     """xor (obfuscate) given string with XOR_KEY config var
     """
-    key = config["XOR_KEY"]
     result = "{"
     for char in string:
         result += "%s, " % hex(ord(char) ^ key)
@@ -200,11 +199,12 @@ max_literal_size = 0
 num_literals = 0
 macro_tpl = "#define %s ((const char *)(__hidden_literals[%d]))"
 
+xor_key = 0x00 if config["DEBUG_LEVEL"] else config["XOR_KEY"]
 for key, _type in CONFIG_KEYS.items():
     if _type != type_hidden_literal:
         continue
     value = config[key]
-    literals.append(xor(value))
+    literals.append(xor(value, xor_key))
     literals_macros.append(macro_tpl % (key, num_literals))
     max_literal_size = max(max_literal_size, len(value))
     num_literals += 1
