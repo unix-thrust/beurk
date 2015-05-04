@@ -285,6 +285,7 @@ config["CFLAGS"] = """
 -Wdouble-promotion -Wunknown-pragmas
 -Wno-unknown-warning-option
 -mtune=native
+-D_GNU_SOURCE
 """.replace("\n", " ")
 
 config["LDFLAGS"] = "-lc -ldl -lutil "

