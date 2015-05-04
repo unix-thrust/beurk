@@ -83,7 +83,7 @@ static void     init_syscalls_list() {
         syscall = beurk_syscalls_table[i];
         beurk_syscalls_list[i] = dlsym(RTLD_NEXT, syscall);
         if ((dl_error = dlerror()) != NULL)
-            DEBUG(dl_error);
+            DEBUG(D_ERROR, dl_error);
     }
 }
 
@@ -95,5 +95,5 @@ void        init(void)
     init_hidden_literals();
     init_syscalls_table();
     init_syscalls_list();
-    DEBUG("init() constructor loaded");
+    DEBUG(D_INFO, "init() constructor loaded");
 }

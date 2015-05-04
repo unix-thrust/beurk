@@ -35,6 +35,6 @@
 #include "beurk.h"
 
 int open(const char *pathname, int flag, mode_t mode) {
-    DEBUG("call open(2) hooked");
+    DEBUG(D_INFO, "call open(2) hooked");
     return (int)REAL_OPEN(pathname, flag, mode);
 }

@@ -20,55 +20,83 @@
 
 #pragma once
 
+#include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdarg.h>
 
-#if DEBUG_LEVEL > 0
-static FILE *g_debug_file = NULL;
 
-static void init_debug(void)
-{
-    if (g_debug_file == NULL)
-    {
-        if ((g_debug_file = fopen(DEBUG_FILE, "a")) == NULL)
-        {
-            write(STDERR_FILENO, "\n[BEURK]: FATAL ERROR: ", 23);
-            perror("cannot open DEBUG_FILE");
-        }
+#if DEBUG_LEVEL > 0
+typedef enum    dbg_type {
+    D_INFO,
+    D_ERROR,
+}               e_dbg_type;
+
+static FILE     *get_debug_file(void) {
+    const char  *debug_file_name;
+    FILE        *debug_file;
+
+    if ((debug_file_name = getenv("BEURK_DEBUG_FILE")) != NULL)
+        debug_file = fopen(debug_file_name, "a");
+    else
+        debug_file = fopen(DEBUG_FILE, "a");
+
+    if (debug_file == NULL) {
+        write(STDERR_FILENO, "\n[BEURK]: FATAL ERROR: ", 23);
+        perror("cannot open DEBUG_FILE");
     }
+
+    return (debug_file);
 }
 #else /* debug disabled */
 # define DEBUG(...)
 #endif
 
 #if DEBUG_LEVEL == 1 /* debug basic */
-static void debug_basic(const char *fmt, ...)
-{
+static void debug_basic(e_dbg_type flag, const char *fmt, ...) {
+    FILE    *debug_file;
     va_list ap;
 
-    init_debug();
+    if (!(debug_file = get_debug_file()))
+        return ;
+
+    if (flag == D_INFO)
+        fprintf(debug_file, "[BEURK_INFO]: ");
+    else if (flag == D_ERROR)
+        fprintf(debug_file, "[BEURK_ERROR]: ");
+    else
+        fprintf(debug_file, "[BEURK_UNKNOWN]: ");
 
     va_start(ap, fmt);
-    fprintf(g_debug_file, "[BEURK]: ");
-    vfprintf(g_debug_file, fmt, ap);
-    fprintf(g_debug_file, "\n");
+    vfprintf(debug_file, fmt, ap);
     va_end(ap);
+    fprintf(debug_file, "\n");
+    fflush(debug_file);
+    fclose(debug_file);
 }
 # define DEBUG(...) (debug_basic(__VA_ARGS__))
 
 #elif DEBUG_LEVEL == 2 /* debug high (with file and line numbers) */
-static void debug_high(const char *file, int line, const char *fmt, ...)
-{
+static void debug_high(const char *f, int l, e_dbg_type flag, char *fmt, ...) {
+    FILE    *debug_file;
     va_list ap;
 
-    init_debug();
+    if (!(debug_file = get_debug_file()))
+        return ;
+
+    if (flag == D_INFO)
+        fprintf(debug_file, "[BEURK_INFO<%s:%d>]: ", f, l);
+    else if (flag == D_ERROR)
+        fprintf(debug_file, "[BEURK_ERROR<%s:%d>]: ", f, l);
+    else
+        fprintf(debug_file, "[BEURK_UNKNOWN<%s:%d>]: ", f, l);
 
     va_start(ap, fmt);
-    fprintf(g_debug_file, "[BEURK<%s:%d>]: ", file, line);
-    vfprintf(g_debug_file, fmt, ap);
-    fprintf(g_debug_file, "\n");
+    vfprintf(debug_file, fmt, ap);
     va_end(ap);
+    fprintf(debug_file, "\n");
+    fflush(debug_file);
+    fclose(debug_file);
 }
 # define DEBUG(...) (debug_high(__FILE__, __LINE__, __VA_ARGS__))
 #endif
