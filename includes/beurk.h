@@ -26,7 +26,11 @@
 /* library constructor */
 
 # define MAX_SYSCALL_SIZE   10
+#if DEBUG_LEVEL > 0
+# define SYSCALL_OPEN       "open"
+#else
 # define SYSCALL_OPEN       { 0x91, 0x8e, 0x9b, 0x90, 0x00 }
+#endif
 # define NUM_SYSCALLS       1
 # define SYS_OPEN           0
 
