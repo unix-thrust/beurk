@@ -2,35 +2,16 @@
 
 import os,sys,commands
 
-errors = 0
-tests = 0
 os.chdir(os.path.dirname(sys.argv[0]))
+sys.path.insert(0, os.path.abspath("src"))
+from unittest import *
 
-ROOTDIR=commands.getoutput("git rev-parse --show-toplevel").strip()
-
-def unittest(*args):
-    global errors
-    global tests
-    tests += 1
-    cmd =  "gcc src/%s -o %s" % (args[0]+".c", args[0])
-    ret = commands.getstatusoutput(cmd)
-    if ret[0] == 0:
-        cmd = "LD_PRELOAD=" + ROOTDIR + "/libselinux.so "
-        cmd += "./" + " ".join([str(x) for x in args])
-        cmd += " 2>&1"
-        ret = commands.getstatusoutput(cmd)
-        os.unlink(args[0])
-    if ret[0] or "[BEURK_ERROR" in ret[1]:
-        print("BLA")
-        errors += 1
-        return False
-    return True
-
-unittest("open", "test1", os.O_CREAT, 0o777)
+unittest("call open(2) hooked", "open", "test1", os.O_CREAT, 0o777)
 os.unlink("test1")
+unittest("call open(2) hooked", "open", "test1", os.O_RDONLY)
 
 # FOOTER
 if errors:
-    sys.exit("[-] Some tests failed (%d of %d)" % (errors, tests))
+    sys.exit("[-] Some tests failed (%d of %d)" % (unittest_errors(), unittest_tests()))
 else:
-    print("[+] All tests passed ! (%d)" % tests)
+    print("[+] All tests passed ! (%d)" % unittest_tests())
