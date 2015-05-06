@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ROOTDIR=$(git rev-parse --show-toplevel)
 TESTSDIR=${ROOTDIR}/tests/core-unittest
