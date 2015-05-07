@@ -20,26 +20,12 @@
 
 #pragma once
 
-#include "config.h"
-#include "debug.h"
+# define _HOOKED __attribute__((visibility("default")))
 
-// /* library constructor */
-//
-// # define MAX_SYSCALL_SIZE   10
-// #if DEBUG_LEVEL > 0
-// # define SYSCALL_OPEN       "open"
-// #else
-// # define SYSCALL_OPEN       { 0x91, 0x8e, 0x9b, 0x90, 0x00 }
-// #endif
-// # define NUM_SYSCALLS       1
-// # define SYS_OPEN           0
-//
-// # define REAL_OPEN(args...) (beurk_syscalls_list[SYS_OPEN](args))
-//
-// static char         beurk_syscalls_table[NUM_SYSCALLS][MAX_SYSCALL_SIZE] = {
-//     SYSCALL_OPEN
-// };
-//
-// ssize_t             (*beurk_syscalls_list[NUM_SYSCALLS])();
-//
-// void                init(void) __attribute__((constructor));
+/** Function hooks prototypes
+ *
+ * This header file contains ALL protypes of hooked functions.
+ */
+
+
+int open(const char *path, int oflag, mode_t mode) _HOOKED;

