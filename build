@@ -322,11 +322,12 @@ SOURCES = [
         ]
 
 config["CFLAGS"] = """
--Iincludes -Wall -Wextra
--Wdisabled-optimization -Winline
--Wunsuffixed-float-constants
--Wdouble-promotion -Wunknown-pragmas
--Wno-unknown-warning-option
+-Iincludes
+-Wall
+-Wextra
+-Wdisabled-optimization
+-Winline
+-Wunknown-pragmas
 -mtune=native
 -D_GNU_SOURCE
 """.replace("\n", " ")
