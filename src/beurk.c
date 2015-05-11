@@ -31,7 +31,7 @@
 #if DEBUG_LEVEL > 0
 # define xor(...)
 #else
-static void     xor(char *p) {
+static void         xor(char *p) {
     unsigned int    i;
 
     for(i = 0; i < strlen(p); i++) {
@@ -50,7 +50,7 @@ static void     xor(char *p) {
  * BEURK config file.
  */
 static void     init_hidden_literals(void) {
-    int     i;
+    int         i;
 
     for (i=0; i<NUM_LITERALS; i++) {
         xor(__hidden_literals[i]);

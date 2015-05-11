@@ -332,6 +332,9 @@ config["CFLAGS"] = """
 -D_GNU_SOURCE
 """.replace("\n", " ")
 
+if not config["DEBUG_LEVEL"]:
+    config["CFLAGS"] += " -fvisibility=hidden "
+
 config["LDFLAGS"] = "-lc -ldl -lutil "
 if config["ENABLE_PAM"]:
     config["LDFLAGS"] += "-lpam "

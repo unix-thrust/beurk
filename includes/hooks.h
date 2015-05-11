@@ -20,6 +20,9 @@
 
 #pragma once
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 # define _HOOKED __attribute__((visibility("default")))
 
 /** Function hooks prototypes

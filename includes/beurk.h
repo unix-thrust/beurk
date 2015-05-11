@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "hooks.h"
 #include "config.h"
 #include "debug.h"
 
