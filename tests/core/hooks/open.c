@@ -1,7 +1,8 @@
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 int        main(int ac, char **av) {
     if (ac == 2) {
@@ -10,5 +11,7 @@ int        main(int ac, char **av) {
     else if (ac > 3) {
         open(av[1], atoi(av[2]), atoi(av[3]));
     }
+    else
+        return 1;
     return 0;
 }
