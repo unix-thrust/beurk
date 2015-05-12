@@ -1,2 +1,4 @@
-# Ignoring generated header file
-includes/config.h
+# Recommended gitignore entries for BEURK project
+/includes/config.h
+*.o
+*.so
