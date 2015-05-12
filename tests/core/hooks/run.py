@@ -37,7 +37,7 @@ def test_hook(*args):
     testinfo = args[0]+"() " + " ".join([repr(x) for x in args[1:]])
     print("")
     print_action("Running test -> %s  ..." % testinfo)
-    cmd = "gcc %s -o %s" % (args[0]+".c", args[0])
+    cmd = "cc %s -o %s" % (args[0]+".c", args[0])
     print(cmd)
     ret = commands.getstatusoutput(cmd)
     if ret[0] == 0:
