@@ -4,6 +4,7 @@ import sys
 import os
 import re
 import commands
+from glob import glob
 
 from pprint import pprint # debug
 
@@ -243,7 +244,7 @@ for key, _type in CONFIG_KEYS.items():
     num_literals += 1
 
 # add `function_hooks` names to the list of literals
-macro_tpl = "#define REAL_%s ((%s)(__non_hooked_symbols[%d]))"
+macro_tpl = "#define REAL_%s(args...) ((%s)((__non_hooked_symbols[%d])(args)))"
 num_hooks = 0
 for _type, name in function_hooks:
     literals.append(xor(name, xor_key))
@@ -318,8 +319,10 @@ def run_build_command(cmd):
         abort("build command failed")
 
 SOURCES = [
-        "src/beurk.c",
+        "src/init.c",
         ]
+# automagically add every hooks to SOURCES
+SOURCES += glob("src/hooks/*.c")
 
 config["CFLAGS"] = """
 -Iincludes
