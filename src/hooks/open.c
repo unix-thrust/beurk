@@ -22,19 +22,15 @@
  *
 */
 
-#include <string.h>
-#include <dlfcn.h>
-
 /**
  * includes open
 */
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <stdarg.h>
 #include "beurk.h"
 
 int open(const char *pathname, int flag, mode_t mode) {
     DEBUG(D_INFO, "call open(2) hooked");
-    return (int)REAL_OPEN(pathname, flag, mode);
+    return REAL_OPEN(pathname, flag, mode);
 }
