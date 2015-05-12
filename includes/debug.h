@@ -49,7 +49,7 @@ static FILE     *get_debug_file(void) {
     return (debug_file);
 }
 #else /* debug disabled */
-# define DEBUG(...)
+# define DEBUG(...) ((void)0)
 #endif
 
 #if DEBUG_LEVEL == 1 /* debug basic */
