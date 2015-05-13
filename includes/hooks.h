@@ -20,9 +20,6 @@
 
 #pragma once
 
-#include <sys/types.h>
-#include <sys/stat.h>
-
 # define _HOOKED __attribute__((visibility("default")))
 
 /** Function hooks prototypes
@@ -31,4 +28,4 @@
  */
 
 
-int open(const char *path, int oflag, mode_t mode) _HOOKED;
+int open(const char *path, int oflag, ...) _HOOKED;
