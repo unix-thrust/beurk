@@ -23,3 +23,5 @@
 #include "hooks.h"
 #include "config.h"
 #include "debug.h"
+
+void        init(void) __attribute__((constructor));
