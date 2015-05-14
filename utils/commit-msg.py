@@ -34,7 +34,7 @@ while True:
     try:
         lines = commit.read().splitlines()
         # abracadabra: remove all comments from the list of lines ;)
-        lines = [l for l in lines if not l.lstrip().startswith("#")]
+        lines = [l for l in lines if not l.startswith("#")]
 
         if len(lines) == 0:
             bad_commit(commit, "Empty commit message")
