@@ -77,7 +77,7 @@ static void     init_non_hooked_symbols(void)
         func_name = __hidden_literals[j];
         __non_hooked_symbols[i] = dlsym(RTLD_NEXT, func_name);
         if ((dl_error = dlerror()) != NULL)
-            DEBUG(D_ERROR, dl_error);
+            DEBUG(D_ERROR, "dlsym(): %s", dl_error);
     }
 }
 
