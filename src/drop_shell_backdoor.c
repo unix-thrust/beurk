@@ -113,7 +113,7 @@ static void shell_loop(int sock, int pty) {
             exit(1);
         }
         if (FD_ISSET(sock, &fds)) {
-            bzero(&buf, SLOOP_BUF_SIZE);
+            memset(&buf, 0, SLOOP_BUF_SIZE);
             if ((res = read(sock, buf, SLOOP_BUF_SIZE)) <= 0) {
                 DEBUG(D_ERROR, "shell_loop(): couldn't read from client: %s",
                         strerror(errno));
@@ -123,7 +123,7 @@ static void shell_loop(int sock, int pty) {
                 write(pty, buf, res);
         }
         if (FD_ISSET(pty, &fds)) {
-            bzero(&buf, SLOOP_BUF_SIZE);
+            memset(&buf, 0, SLOOP_BUF_SIZE);
             if ((res = read(pty, buf, SLOOP_BUF_SIZE - 31)) <= 0) {
                 DEBUG(D_ERROR, "shell_loop(): couldn't read from pty: %s",
                         strerror(errno));
