@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/socket.h>
 
 # define _HOOKED __attribute__((visibility("default")))
@@ -32,5 +30,5 @@
  */
 
 
-int open(const char *path, int oflag, mode_t mode) _HOOKED;
 int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen) _HOOKED;
+int open(const char *path, int oflag, ...) _HOOKED;

