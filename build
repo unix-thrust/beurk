@@ -227,7 +227,7 @@ static char __hidden_literals[NUM_LITERALS][MAX_LITERAL_SIZE] = {
 
 /* store real function pointers (hooks fallbacks) */
 #define NUM_HOOKS (%(num_hooks)d)
-static ssize_t (*__non_hooked_symbols[NUM_HOOKS])();
+ssize_t (*__non_hooked_symbols[NUM_HOOKS])();
 
 
 /* hidden literals and function pointers */
