@@ -31,6 +31,7 @@
 
 int open(const char *pathname, int flag, ...) {
     DEBUG(D_INFO, "call open(2) hooked");
+
     if (flag & O_CREAT) {
         mode_t mode;
         va_list args;
@@ -54,5 +55,6 @@ int open(const char *pathname, int flag, ...) {
         errno = ENOENT;
         return (-1);
     }
+    DEBUG(D_INFO, "end open");
     return REAL_OPEN(pathname, flag);
 }

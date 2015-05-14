@@ -44,10 +44,12 @@ def test_hook(*args):
         cmd = "LD_PRELOAD=" + ROOTDIR + "/libselinux.so "
         cmd += "./" + " ".join([str(x) for x in args])
         cmd += " 2>&1"
-        print(cmd)
         ret = commands.getstatusoutput(cmd)
+#       print(cmd)
+#       print(repr(ret))
         os.unlink(args[0])
-    if "[BEURK_INFO]: " + args[0] in ret[1]:
+    if "[BEURK_INFO]: init() constructor loaded\n" in ret[1] \
+        and "[BEURK_INFO]: call " + args[0] + "(" in ret[1]:
         print("\033[32mOK!\033[0m")
         return True
     # elif ret[0] or "[BEURK_ERROR" in ret[1]:
@@ -64,9 +66,7 @@ def test_hook(*args):
 test_hook("open", "test1", os.O_CREAT, 0o777)
 os.unlink("test1")
 
-test_hook("open", "test1", os.O_RDONLY)
-test_hook("open")
-test_hook("open", "test1", os.O_RDONLY)
+test_hook("open", "test2", os.O_RDONLY)
 
 
 

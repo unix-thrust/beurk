@@ -5,11 +5,11 @@
 #include <sys/types.h>
 
 int        main(int ac, char **av) {
-    if (ac == 2) {
-        open(av[1], atoi(av[2]));
+    if (ac == 3) {
+        return open(av[1], atoi(av[2]));
     }
     else if (ac > 3) {
-        open(av[1], atoi(av[2]), atoi(av[3]));
+        return open(av[1], atoi(av[2]), atoi(av[3]));
     }
     else
         return 1;
