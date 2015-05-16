@@ -31,6 +31,9 @@ void        init(void) __attribute__((constructor));
 /* is_attacker.c */
 int         is_attacker(void);
 
+/* is_hidden_file.c */
+int         is_hidden_file(const char *path);
+
 /* cleanup_login_records.c */
 void        cleanup_login_records(const char *pty_name);
 
