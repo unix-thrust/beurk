@@ -21,6 +21,7 @@
 #pragma once
 
 #include <dirent.h> /* struct dirent, DIR */
+#include <stdio.h> /* FILE */
 #include <sys/socket.h> /* struct sockaddr, socklen_t */
 #include <sys/stat.h> /* struct stat */
 
@@ -36,3 +37,4 @@ int             open(const char *path, int oflag, ...) _HOOKED;
 struct dirent   *readdir(DIR *dirp) _HOOKED;
 int             stat(const char *pathname, struct stat *buf) _HOOKED;
 int             lstat(const char *path, struct stat *buf) _HOOKED;
+FILE            *fopen(const char *path, const char *mode) _HOOKED;

