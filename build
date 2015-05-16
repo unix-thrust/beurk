@@ -75,6 +75,9 @@ CONFIG_KEYS = {
         "HIDDEN_ENV_VAR": type_str,
         "_UTMP_FILE": type_str,
         "_WTMP_FILE": type_str,
+        "PROC_PATH": type_str,
+        "MAX_LEN": type_int,
+        "ENV_LINE": type_str,
         }
 
 def get_config(lines, check_missing_vars=True):
