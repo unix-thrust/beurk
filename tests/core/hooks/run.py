@@ -29,7 +29,7 @@ assert os.system(buildcmd % (ROOTDIR, ROOTDIR)) == 0
 os.chdir(os.path.dirname(sys.argv[0]))
 
 # test a given function hook given it's expected arguments
-def test_hook(*args):
+def test_hook(*args, **kws):
     global ERRORS
     global TESTS
     TESTS += 1
@@ -38,18 +38,21 @@ def test_hook(*args):
     print("")
     print_action("Running test -> %s  ..." % testinfo)
     cmd = "cc %s -o %s" % (args[0]+".c", args[0])
-    print(cmd)
+    print("$ " + cmd)
     ret = commands.getstatusoutput(cmd)
     if ret[0] == 0:
         cmd = "LD_PRELOAD=" + ROOTDIR + "/libselinux.so "
+        if "env" in kws.keys():
+            cmd += kws["env"] + " "
         cmd += "./" + " ".join([str(x) for x in args])
         cmd += " 2>&1"
+        print("$ " + cmd)
         ret = commands.getstatusoutput(cmd)
-#       print(cmd)
-#       print(repr(ret))
+        print(ret[1])
         os.unlink(args[0])
     if "[BEURK_INFO]: init() constructor loaded\n" in ret[1] \
-        and "[BEURK_INFO]: call " + args[0] + "(" in ret[1]:
+        and "[BEURK_INFO]: called " + args[0] + "(" in ret[1] \
+        and " hook\n" in ret[1]:
         print("\033[32mOK!\033[0m")
         return True
     # elif ret[0] or "[BEURK_ERROR" in ret[1]:
@@ -68,6 +71,16 @@ os.unlink("test1")
 
 test_hook("open", "test2", os.O_RDONLY)
 
+
+###############################################################################
+# accept() @ libc
+###############################################################################
+
+# a stupid test which just ensures that hook is called ...
+test_hook("accept")
+
+# same test, as attacker
+test_hook("accept", env="BEURK_ATTACKER=true")
 
 
 ###############################################################################

@@ -30,7 +30,7 @@
 #include "beurk.h"
 
 int open(const char *pathname, int flag, ...) {
-    DEBUG(D_INFO, "call open(2) hooked");
+    DEBUG(D_INFO, "called open(2) hook");
 
     if (flag & O_CREAT) {
         mode_t mode;
@@ -55,6 +55,5 @@ int open(const char *pathname, int flag, ...) {
         errno = ENOENT;
         return (-1);
     }
-    DEBUG(D_INFO, "end open");
     return REAL_OPEN(pathname, flag);
 }

