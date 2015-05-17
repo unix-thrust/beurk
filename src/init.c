@@ -76,8 +76,6 @@ static void     init_non_hooked_symbols(void) {
     while (j < NUM_LITERALS) {
         func_name = __hidden_literals[j];
         __non_hooked_symbols[i] = dlsym(RTLD_NEXT, func_name);
-        if ((dl_error = dlerror()) != NULL)
-            DEBUG(D_ERROR, "dlsym(): %s", dl_error);
         i++;
         j++;
     }
@@ -88,8 +86,6 @@ static void     init_non_hooked_symbols(void) {
  */
 void        init(void)
 {
-    DEBUG(D_INFO, "init() constructor loaded");
-
     init_hidden_literals();
     init_non_hooked_symbols();
 }
