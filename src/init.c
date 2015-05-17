@@ -18,9 +18,10 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <string.h>
-#include <dlfcn.h>
-#include "beurk.h"
+#include <string.h> /* strlen() */
+#include <dlfcn.h> /* dlsym(), dlerror() */
+#include "beurk.h" /* DEBUG(), prototype */
+#include "config.h" /* XOR_KEY, NUM_LITERALS, __hidden_literals, ... */
 
 
 /** xorify a string whith XOR_KEY
@@ -52,7 +53,7 @@ static void         xor(char *p) {
 static void     init_hidden_literals(void) {
     int         i;
 
-    for (i=0; i<NUM_LITERALS; i++) {
+    for (i = 0; i < NUM_LITERALS; i++) {
         xor(__hidden_literals[i]);
     }
 }
@@ -65,8 +66,7 @@ static void     init_hidden_literals(void) {
  * NOTE: If not called, all `REAL_<NAME>` macros will point
  * to an invalid location.
  */
-static void     init_non_hooked_symbols(void)
-{
+static void     init_non_hooked_symbols(void) {
     int     i, j;
     char    *func_name;
     char    *dl_error;
@@ -89,6 +89,7 @@ static void     init_non_hooked_symbols(void)
 void        init(void)
 {
     DEBUG(D_INFO, "init() constructor loaded");
+
     init_hidden_literals();
     init_non_hooked_symbols();
 }

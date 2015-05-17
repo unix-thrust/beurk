@@ -20,14 +20,14 @@
 
 #include <sys/stat.h> /* struct stat */
 #include <string.h> /* strstr() */
-#include "beurk.h"
-#include "config.h"
+#include <limits.h> /* PATH_MAX */
+#include "beurk.h" /* DEBUG(),  prototype */
+#include "config.h" /* FILE, MAX_LEN, MAGIC_STRING, LIBRARY_NAME, ... */
 
 int         is_hidden_file(const char *path) {
     DEBUG(D_INFO, "called is_hidden_file()");
 
     FILE        *env_file;
-    char        *res;
     char        environ[PATH_MAX];
     char        line[MAX_LEN];
     struct stat s_fstat;

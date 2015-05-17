@@ -21,8 +21,6 @@
 #pragma once
 
 #include <sys/socket.h>
-#include "hooks.h"
-#include "config.h"
 #include "debug.h"
 
 /* init.c */

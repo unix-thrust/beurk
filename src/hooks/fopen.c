@@ -19,7 +19,7 @@
  */
 
 #include <errno.h> /* errno, ENOENT */
-#include "beurk.h" /* is_attacker(), is_hidden_file() */
+#include "beurk.h" /* DEBUG(), is_attacker(), is_hidden_file() */
 #include "config.h" /* REAL_FOPEN() */
 #include "hooks.h" /* prototype, FILE */
 

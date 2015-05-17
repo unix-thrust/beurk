@@ -27,6 +27,7 @@
 #include <sys/socket.h>
 #include <sys/select.h>
 #include "beurk.h"
+#include "config.h"
 
 
 /** ensure that given password is valid.
