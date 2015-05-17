@@ -29,7 +29,7 @@ assert os.system(buildcmd % (ROOTDIR, ROOTDIR)) == 0
 os.chdir(os.path.dirname(sys.argv[0]))
 
 # test a given function hook given it's expected arguments
-def test_hook(*args, **kws):
+def _test_hook(*args, **kws):
     global ERRORS
     global TESTS
     TESTS += 1
@@ -61,6 +61,12 @@ def test_hook(*args, **kws):
         ERRORS += 1
         return False
 
+def test_hook(*args):
+    # test as victim
+    _test_hook(*args)
+    # test as attacker
+    _test_hook(*args, env="BEURK_ATTACKER=true")
+
 
 ###############################################################################
 # open() @ libc
@@ -78,9 +84,6 @@ test_hook("open", "test2", os.O_RDONLY)
 
 # a stupid test which just ensures that hook is called ...
 test_hook("accept")
-
-# same test, as attacker
-test_hook("accept", env="BEURK_ATTACKER=true")
 
 
 ###############################################################################
