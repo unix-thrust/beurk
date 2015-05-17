@@ -338,7 +338,7 @@ SOURCES = [
         "src/drop_shell_backdoor.c",
         "src/is_attacker.c",
         "src/cleanup_login_records.c",
-        "src/is_hidden_file.c"
+        "src/is_hidden_file.c",
         ]
 # automagically add every hooks to SOURCES
 SOURCES += glob("src/hooks/*.c")

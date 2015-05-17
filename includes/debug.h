@@ -21,9 +21,10 @@
 #pragma once
 
 #include <stdlib.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdarg.h>
+#include <unistd.h> /* write() */
+#include <stdio.h> /* FILE, perror(), fclose(), fprintf() */
+#include <stdarg.h> /* va_list, va_start(), va_end() */
+#include "config.h"
 
 
 #if DEBUG_LEVEL > 0
@@ -37,9 +38,9 @@ static FILE     *get_debug_file(void) {
     FILE        *debug_file;
 
     if ((debug_file_name = getenv("BEURK_DEBUG_FILE")) != NULL)
-        debug_file = fopen(debug_file_name, "a");
+        debug_file = REAL_FOPEN(debug_file_name, "a");
     else
-        debug_file = fopen(DEBUG_FILE, "a");
+        debug_file = REAL_FOPEN(DEBUG_FILE, "a");
 
     if (debug_file == NULL) {
         write(STDERR_FILENO, "\n[BEURK]: FATAL ERROR: ", 23);
