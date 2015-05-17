@@ -159,9 +159,9 @@ for line in header:
 
 
 ###############################################################################
-### generate config.h header file
+### generate includes/config.h and src/config.c
 
-HEADER = """/*
+CONFIG_H = """/*
  * BEURK is an userland rootkit for GNU/Linux, focused around stealth.
  * Copyright (C) 2015  unix-thrust
  *
@@ -194,7 +194,6 @@ CONFIG_C = """/*
  *
  * This file is part of BEURK.
  *
- * BEURK is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -236,7 +235,7 @@ for key, _type in CONFIG_KEYS.items():
         fatal_error("no determined action for %r" %  _type.__name__)
     macros += macro_tpl % {"key": key, "value": value}
 
-HEADER += macros
+CONFIG_H += macros
 
 
 # add hidden literals to config.h
@@ -296,7 +295,7 @@ for _type, name in function_hooks:
 
 max_literal_size += 1
 
-HEADER += literals_code % {
+CONFIG_H += literals_code % {
         "max_literal_size": max_literal_size + 1,
         "num_literals": num_literals,
         "num_hooks": len(function_hooks),
@@ -307,8 +306,8 @@ HEADER += literals_code % {
 CONFIG_C %= {
         "literals": "\n    ".join(literals),
         }
-# write HEADER into config.h
-open("includes/config.h", 'w').write(HEADER)
+# write CONFIG_H into config.h
+open("includes/config.h", 'w').write(CONFIG_H)
 open("src/config.c", "w").write(CONFIG_C)
 
 
@@ -407,8 +406,11 @@ else:
 run_build_command("{CC} -fPIC -shared " + set_ld_soname \
         + objects + " {LDFLAGS} -o {LIBRARY_NAME}")
 
-# remove object files afterwards
-run_build_command("rm -f " + objects)
+# remove object files afterwards (keep them if in debug mode
+# in order to be able tu run some tests that need object files
+# to extrapolate on symbols)
+if config["DEBUG_LEVEL"] == 0:
+    run_build_command("rm -f " + objects)
 
 # strip if no debug mode
 if config["DEBUG_LEVEL"] == 0:
