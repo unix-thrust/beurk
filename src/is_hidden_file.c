@@ -24,6 +24,12 @@
 #include "beurk.h" /* DEBUG(),  prototype */
 #include "config.h" /* FILE, MAX_LEN, MAGIC_STRING, LIBRARY_NAME, ... */
 
+/** is_hidden_file is a multi-purpose checker, able to detect if the path
+ * contains our magic string or the library name, before checking if the
+ * path is looking into /proc/, where we look for the environment file, to
+ * identify the process as a hidden one or not.
+ */
+
 int         is_hidden_file(const char *path) {
     DEBUG(D_INFO, "called is_hidden_file()");
 
