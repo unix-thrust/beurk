@@ -1,4 +1,5 @@
 # Recommended gitignore entries for BEURK project
 /includes/config.h
+/src/config.c
 *.o
 *.so
