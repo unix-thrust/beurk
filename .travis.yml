@@ -4,11 +4,6 @@ before_install:
     - sudo apt-get install libssl-dev
     - sudo apt-get install libpcap-dev
 
-branches:
-    only:
-      - master
-      - dev
-
 notifications:
     webhooks:
       urls:

