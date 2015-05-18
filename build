@@ -5,6 +5,7 @@ import os
 import re
 import commands
 from glob import glob
+import ast
 
 from pprint import pprint # debug
 
@@ -36,8 +37,11 @@ if len(sys.argv) != 2:
 
 # special types for config var values
 def type_str(v):
-    assert str(v)
-    return str(v)
+    try:
+        res = str(ast.literal_eval(v))
+    except:
+        res = str(v)
+    return res
 
 def type_bool(v):
     assert v.lower() in ["true", "false"]
