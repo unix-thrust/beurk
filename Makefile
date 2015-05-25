@@ -44,7 +44,7 @@ all: $(BEURK_LIBRARY_NAME)
 
 # generate includes/config.h and src/config.c with builder
 src/config.c:
-	./build $(BEURK_CONFIG_FILE)
+	./reconfigure $(BEURK_CONFIG_FILE)
 
 $(BEURK_LIBRARY_NAME): src/config.c $(OBJECTS)
 	$(CC) -fPIC -shared -Wl,-soname,$(BEURK_LIBRARY_NAME) $(OBJECTS) \
