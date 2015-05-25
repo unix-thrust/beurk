@@ -29,6 +29,7 @@ SOURCES		= src/init.c \
 			  src/hooks/stat.c \
 			  src/hooks/__xstat.c \
 			  src/hooks/stat64.c \
+			  src/hooks/__xstat64.c \
 			  src/hooks/accept.c
 OBJECTS		= $(patsubst src/%.c, obj/%.o, $(SOURCES))
 
