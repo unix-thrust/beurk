@@ -32,11 +32,13 @@
 #if DEBUG_LEVEL > 0
 # define xor(...)
 #else
-static void         xor(char *p) {
-    unsigned int    i;
+static void     xor(char *str) {
+    size_t      i;
+    size_t      len;
 
-    for(i = 0; i < strlen(p); i++) {
-        p[i] ^= XOR_KEY;
+    len = strlen(str);
+    for(i = 0; i < len; i++) {
+        str[i] ^= XOR_KEY;
     }
 }
 #endif
@@ -67,9 +69,8 @@ static void     init_hidden_literals(void) {
  * to an invalid location.
  */
 static void     init_non_hooked_symbols(void) {
-    int     i, j;
-    char    *func_name;
-    char    *dl_error;
+    int         i, j;
+    char        *func_name;
 
     i = 0;
     j = NUM_LITERALS - NUM_HOOKS;
@@ -84,8 +85,7 @@ static void     init_non_hooked_symbols(void) {
 
 /** library constructor
  */
-void        init(void)
-{
+void            init(void) {
     init_hidden_literals();
     init_non_hooked_symbols();
 }
