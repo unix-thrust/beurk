@@ -23,4 +23,4 @@ env:
     - CC=clang
 
 script:
-    ./tests/run.sh
+    ./utils/run-tests.sh tests
