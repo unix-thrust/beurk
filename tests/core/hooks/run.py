@@ -22,8 +22,8 @@ ROOTDIR=commands.getoutput("git rev-parse --show-toplevel").strip()
 assert os.path.isdir(ROOTDIR)
 
 # compile BEURK for hooks testing
-buildcmd = "BEURK_DEBUG_LEVEL=1 %s/build %s/beurk.conf"
-assert os.system(buildcmd % (ROOTDIR, ROOTDIR)) == 0
+buildcmd = "BEURK_DEBUG_LEVEL=1 make re -C " + ROOTDIR
+assert os.system(buildcmd) == 0
 
 # move to script directory
 os.chdir(os.path.dirname(sys.argv[0]))
@@ -50,8 +50,7 @@ def _test_hook(*args, **kws):
         ret = commands.getstatusoutput(cmd)
         print(ret[1])
         os.unlink(args[0])
-    if "[BEURK_INFO]: init() constructor loaded\n" in ret[1] \
-        and "[BEURK_INFO]: called " + args[0] + "(" in ret[1] \
+    if "[BEURK_INFO]: called " + args[0] + "(" in ret[1] \
         and " hook\n" in ret[1]:
         print("\033[32mOK!\033[0m")
         return True
