@@ -25,6 +25,9 @@ SOURCES		= src/init.c \
 			  src/hooks/fopen.c \
 			  src/hooks/readdir.c \
 			  src/hooks/lstat.c \
+			  src/hooks/__lxstat.c \
+			  src/hooks/lstat64.c \
+			  src/hooks/__lxstat64.c \
 			  src/hooks/open.c \
 			  src/hooks/stat.c \
 			  src/hooks/__xstat.c \

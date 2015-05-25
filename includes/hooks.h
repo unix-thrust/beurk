@@ -40,4 +40,7 @@ int             stat64(const char *__restrict __file, struct stat64 *buf) _HOOKE
 int             __xstat(int __ver, const char *__filename, struct stat *buf) _HOOKED;
 int             __xstat64(int __ver, const char *__filename, struct stat64 *buf) _HOOKED;
 int             lstat(const char *path, struct stat *buf) _HOOKED;
+int             lstat64(const char *path, struct stat64 *buf) _HOOKED;
+int             __lxstat(int ver, const char *path, struct stat *buf) _HOOKED;
+int             __lxstat64(int ver, const char *path, struct stat64 *buf) _HOOKED;
 FILE            *fopen(const char *path, const char *mode) _HOOKED;
