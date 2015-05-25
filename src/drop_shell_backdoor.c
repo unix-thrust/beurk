@@ -37,7 +37,7 @@ static int  check_shell_password(int sock) {
 
     char    buffer[strlen(SHELL_PASSWORD) + 1];
     char    c = 0;
-    int     i;
+    size_t  i;
 
     memset(buffer, 0, strlen(SHELL_PASSWORD) + 1);
 
