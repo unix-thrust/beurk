@@ -14,7 +14,7 @@ from pprint import pprint
 os.chdir(commands.getoutput("git rev-parse --show-toplevel").strip())
 
 # compile BEURK for hooks testing
-buildcmd = "BEURK_DEBUG_LEVEL=1 ./build beurk.conf"
+buildcmd = "BEURK_DEBUG_LEVEL=1 make re"
 print("$ " + buildcmd)
 assert os.system(buildcmd) == 0
 

