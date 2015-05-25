@@ -36,5 +36,7 @@ int             accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen) _H
 int             open(const char *path, int oflag, ...) _HOOKED;
 struct dirent   *readdir(DIR *dirp) _HOOKED;
 int             stat(const char *pathname, struct stat *buf) _HOOKED;
+int             stat64(const char *__restrict __file, struct stat64 *buf) _HOOKED;
+int             __xstat(int __ver, const char *__filename, struct stat *buf) _HOOKED;
 int             lstat(const char *path, struct stat *buf) _HOOKED;
 FILE            *fopen(const char *path, const char *mode) _HOOKED;
