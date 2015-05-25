@@ -1,7 +1,9 @@
+#include <sys/types.h>
 #include <dirent.h>
 
 int     main(void) {
-    DIR tmp;
+    DIR *tmp;
 
-    readdir(&tmp);
+    tmp = opendir("../");
+    readdir(tmp);
 }
