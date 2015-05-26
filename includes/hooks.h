@@ -36,7 +36,8 @@
  */
 
 int             accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen) _HOOKED;
-int             rmdir(const char *pathname);
+int             access(const char *pathname, int mode) _HOOKED;
+int             rmdir(const char *pathname) _HOOKED;
 int             open(const char *path, int oflag, ...) _HOOKED;
 struct dirent   *readdir(DIR *dirp) _HOOKED;
 struct dirent64 *readdir64(DIR *dirp) _HOOKED;
