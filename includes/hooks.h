@@ -20,10 +20,13 @@
 
 #pragma once
 
-#include <dirent.h> /* struct dirent, DIR */
-#include <stdio.h> /* FILE */
-#include <sys/socket.h> /* struct sockaddr, socklen_t */
-#include <sys/stat.h> /* struct stat */
+#ifndef _DEBUG_H_
+# define _DEBUG_H_
+
+# include <dirent.h> /* struct dirent, DIR */
+# include <stdio.h> /* FILE */
+# include <sys/socket.h> /* struct sockaddr, socklen_t */
+# include <sys/stat.h> /* struct stat */
 
 # define _HOOKED __attribute__((visibility("default")))
 
@@ -44,3 +47,5 @@ int             lstat64(const char *path, struct stat64 *buf) _HOOKED;
 int             __lxstat(int ver, const char *path, struct stat *buf) _HOOKED;
 int             __lxstat64(int ver, const char *path, struct stat64 *buf) _HOOKED;
 FILE            *fopen(const char *path, const char *mode) _HOOKED;
+
+#endif /* _DEBUG_H_ */

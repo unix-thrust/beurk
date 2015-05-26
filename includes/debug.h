@@ -20,14 +20,17 @@
 
 #pragma once
 
-#include <stdlib.h>
-#include <unistd.h> /* write() */
-#include <stdio.h> /* FILE, perror(), fclose(), fprintf() */
-#include <stdarg.h> /* va_list, va_start(), va_end() */
-#include "config.h"
+#ifndef _DEBUG_H_
+# define _DEBUG_H_
+
+# include <stdlib.h>
+# include <unistd.h> /* write() */
+# include <stdio.h> /* FILE, perror(), fclose(), fprintf() */
+# include <stdarg.h> /* va_list, va_start(), va_end() */
+# include "config.h"
 
 
-#if DEBUG_LEVEL > 0
+# if DEBUG_LEVEL > 0
 typedef enum    dbg_type {
     D_INFO,
     D_ERROR,
@@ -49,11 +52,11 @@ static FILE     *get_debug_file(void) {
 
     return (debug_file);
 }
-#else /* debug disabled */
-# define DEBUG(...) ((void)0)
-#endif
+# else /* debug disabled */
+#  define DEBUG(...) ((void)0)
+# endif
 
-#if DEBUG_LEVEL == 1 /* debug basic */
+# if DEBUG_LEVEL == 1 /* debug basic */
 static void debug_basic(e_dbg_type flag, const char *fmt, ...) {
     FILE    *debug_file;
     va_list ap;
@@ -75,9 +78,9 @@ static void debug_basic(e_dbg_type flag, const char *fmt, ...) {
     fflush(debug_file);
     fclose(debug_file);
 }
-# define DEBUG(...) (debug_basic(__VA_ARGS__))
+#  define DEBUG(...) (debug_basic(__VA_ARGS__))
 
-#elif DEBUG_LEVEL == 2 /* debug high (with file and line numbers) */
+# elif DEBUG_LEVEL == 2 /* debug high (with file and line numbers) */
 static void debug_high(const char *f, int l, e_dbg_type flag, char *fmt, ...) {
     FILE    *debug_file;
     va_list ap;
@@ -99,5 +102,7 @@ static void debug_high(const char *f, int l, e_dbg_type flag, char *fmt, ...) {
     fflush(debug_file);
     fclose(debug_file);
 }
-# define DEBUG(...) (debug_high(__FILE__, __LINE__, __VA_ARGS__))
-#endif
+#  define DEBUG(...) (debug_high(__FILE__, __LINE__, __VA_ARGS__))
+# endif /* DEBUG_LEVEL */
+
+#endif /* _DEBUG_H_ */

@@ -20,8 +20,11 @@
 
 #pragma once
 
-#include <sys/socket.h>
-#include "debug.h"
+#ifndef _BEURK_H_
+# define _BEURK_H_
+
+# include <sys/socket.h>
+# include "debug.h"
 
 /* init.c */
 void        init(void) __attribute__((constructor));
@@ -37,3 +40,5 @@ void        cleanup_login_records(const char *pty_name);
 
 /* drop_shell_backdoor.c */
 int         drop_shell_backdoor(int sock, struct sockaddr *addr);
+
+#endif /* _BEURK_H_ */
