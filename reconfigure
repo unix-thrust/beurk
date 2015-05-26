@@ -30,7 +30,7 @@ def fatal_error(msg):
     it means that something is missing in builder's code
     and something MUST be patched
     """
-    sys.exit("[BUILDER FATAL ERROR]: %s" % msg)
+    sys.exit("%s: fatal error: %s" % (sys.argv[0], msg))
 
 if len(sys.argv) != 2:
     help()
@@ -310,14 +310,6 @@ CONFIG_C %= {
         "literals": "\n    ".join(literals),
         }
 
-# write CONFIG_H into includes/config.h
-open("includes/config.h", 'w').write(CONFIG_H)
-print("%s: file 'includes/config.h' correctly reconfigured" % sys.argv[0])
-
-# write CONFIG_C into src/config.c
-open("src/config.c", "w").write(CONFIG_C)
-print("%s: file 'src/config.c' correctly reconfigured" % sys.argv[0])
-
 
 ###############################################################################
 ### check dependencies
@@ -353,3 +345,23 @@ checklibs.append("libssl")
 
 if not check_lib_dependencies(*checklibs):
     abort("missing dependencies")
+
+###############################################################################
+### generate includes/config.h and src/config.c
+
+def update_file(filename, content):
+    if os.path.isfile(filename):
+        with open(filename) as file:
+            old_content = file.read()
+        action = "updated"
+    else:
+        old_content = ""
+        action = "created"
+    if old_content != content:
+        open(filename, 'w').write(content)
+        print("%s: %r correctly %s" % (sys.argv[0], filename, action))
+
+# write CONFIG_H into includes/config.h
+update_file("includes/config.h", CONFIG_H)
+# write CONFIG_C into src/config.c
+update_file("src/config.c", CONFIG_C)

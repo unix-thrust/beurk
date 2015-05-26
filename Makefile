@@ -67,7 +67,7 @@ endif
 
 # run all tests with `make test`
 test:
-	./utils/run-tests.sh ./tests
+	./utils/run-tests.sh tests
 
 # compile DSO with flags for code coverage
 coverage:

@@ -23,8 +23,7 @@ make distclean
 make distclean
 make
 make all
-test "$(make all | wc -l)" -eq "1"
-make all | grep -iq "nothing"
+test `make all | grep -i nothing | wc -l` -eq "1"
 
 
 #### test make re
