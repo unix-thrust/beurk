@@ -21,6 +21,7 @@ SOURCES		= src/init.c \
 			  src/cleanup_login_records.c \
 			  src/drop_shell_backdoor.c \
 			  src/is_hidden_file.c \
+			  src/is_procnet.c \
 			  src/is_attacker.c \
 			  \
 			  src/hooks/access.c \
