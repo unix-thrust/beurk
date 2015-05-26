@@ -24,7 +24,9 @@ SOURCES		= src/init.c \
 			  src/is_attacker.c \
 			  \
 			  src/hooks/fopen.c \
+			  src/hooks/fopen64.c \
 			  src/hooks/readdir.c \
+			  src/hooks/readdir64.c \
 			  src/hooks/lstat.c \
 			  src/hooks/__lxstat.c \
 			  src/hooks/lstat64.c \
