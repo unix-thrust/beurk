@@ -51,5 +51,8 @@ int             __lxstat(int ver, const char *path, struct stat *buf) _HOOKED;
 int             __lxstat64(int ver, const char *path, struct stat64 *buf) _HOOKED;
 FILE            *fopen(const char *path, const char *mode) _HOOKED;
 FILE            *fopen64(const char *path, const char *mode) _HOOKED;
+int             link(const char *oldpath, const char *newpath) _HOOKED;
+int             unlink(const char *pathname) _HOOKED;
+int             unlinkat(int dirfd, const char *pathname, int flags) _HOOKED;
 
 #endif /* _DEBUG_H_ */
