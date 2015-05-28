@@ -34,7 +34,7 @@ while True:
     try:
         lines = commit.read().splitlines()
         # abracadabra: remove all comments from the list of lines ;)
-        lines = [l for l in lines if not l.lstrip().startswith("#")]
+        lines = [l for l in lines if not l.startswith("#")]
 
         if len(lines) == 0:
             bad_commit(commit, "Empty commit message")
@@ -77,7 +77,7 @@ while True:
         verb = commit_message.split()[0]
         if verb.endswith("ing") or verb.endswith("ed"):
             bad_commit("Commit subject must use imperative, present tense:\n"
-                    "- \"change\", not \"changed\" nor \"changing\"", line)
+                    "# \"change\", not \"changed\" nor \"changing\"", line)
 
         if line != line.strip():
             bad_commit("First commit message line (header) "

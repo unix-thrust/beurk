@@ -34,3 +34,7 @@ conventions:
 ### `deploy_git_hooks.sh`
 Deploy git presubmit hooks in order to check automatically if
 commit messages are following our **Commit Message Guidelines**.
+
+### `run-tests.sh`
+Run a test script or all tests contained in a given directory,
+in a recursive manner.
