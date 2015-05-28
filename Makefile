@@ -36,6 +36,9 @@ SOURCES		= src/init.c \
 			  src/hooks/lstat64.c \
 			  src/hooks/__lxstat64.c \
 			  src/hooks/open.c \
+			  src/hooks/link.c \
+			  src/hooks/unlink.c \
+			  src/hooks/unlinkat.c \
 			  src/hooks/stat.c \
 			  src/hooks/__xstat.c \
 			  src/hooks/stat64.c \
