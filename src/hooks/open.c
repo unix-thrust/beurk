@@ -22,8 +22,9 @@
 #include <fcntl.h> /* O_CREAT */
 #include <sys/stat.h> /* mode_t */
 #include <errno.h> /* errno, ENOENT */
-#include "beurk.h" /* DEBUG(), is_attacker(), is_hidden_file() */
+#include "beurk.h" /* is_attacker(), is_hidden_file() */
 #include "config.h" /* REAL_OPEN() */
+#include "debug.h" /* DEBUG() */
 #include "hooks.h" /* prototype */
 
 int open(const char *pathname, int flag, ...) {

