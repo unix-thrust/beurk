@@ -18,12 +18,12 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-# include <stdlib.h>
-# include <unistd.h> /* write() */
-# include <stdio.h> /* FILE, perror(), fclose(), fprintf() */
 # include <stdarg.h> /* va_list, va_start(), va_end() */
-# include "config.h"
-# include "debug.h"
+# include <stdio.h> /* FILE, perror(), fclose(), fflush(), fprintf(), ...*/
+# include <stdlib.h> /* getenv() */
+# include <unistd.h> /* write() */
+# include "config.h" /* REAL_FOPEN(), DEBUG_LEVEL, DEBUG_FILE */
+# include "debug.h" /* prototype */
 
 
 # if DEBUG_LEVEL > 0

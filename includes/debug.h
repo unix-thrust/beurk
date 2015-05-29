@@ -34,7 +34,7 @@ typedef enum    dbg_type {
 # endif
 
 # if DEBUG_LEVEL == 1 /* debug basic */
-void            debug(e_dbg_type flag, char *fmt, ...);
+void            debug(e_dbg_type flag, const char *fmt, ...);
 #  define DEBUG(...) (debug(__VA_ARGS__))
 
 # elif DEBUG_LEVEL == 2 /* debug high (with file and line numbers) */
@@ -42,4 +42,5 @@ void            debug(const char *f, int l, e_dbg_type flag, char *fmt, ...);
 #  define DEBUG(...) (debug(__FILE__, __LINE__, __VA_ARGS__))
 
 # endif /* DEBUG_LEVEL */
+
 #endif /* _DEBUG_H_ */
