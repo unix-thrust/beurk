@@ -19,8 +19,9 @@
  */
 
 #include <errno.h> /* errno, ENOENT */
-#include "beurk.h" /* DEBUG(), is_attacker(), is_hidden_file() */
+#include "beurk.h" /* is_attacker(), is_hidden_file() */
 #include "config.h" /* REAL_LINK() */
+#include "debug.h" /* DEBUG() */
 #include "hooks.h" /* prototype */
 
 int link(const char *oldpath, const char *newpath) {

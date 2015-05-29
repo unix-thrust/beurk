@@ -26,7 +26,8 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/select.h>
-#include "beurk.h"
+#include "beurk.h" /* prototype */
+#include "debug.h" /* DEBUG() */
 #include "config.h"
 
 
