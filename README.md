@@ -5,8 +5,8 @@ BEURK
 [![Travis Build](https://travis-ci.org/unix-thrust/beurk.svg?branch=master)](https://travis-ci.org/unix-thrust/beurk)
 [![Ready Issues](https://badge.waffle.io/unix-thrust/beurk.svg?label=Ready&title=Ready-Issues)](https://waffle.io/unix-thrust/beurk)
 [![Coverage Status](https://img.shields.io/coveralls/unix-thrust/beurk.svg)](https://coveralls.io/r/unix-thrust/beurk)
-[![Coverity Scan Build](https://img.shields.io/coverity/scan/4866.svg)](https://scan.coverity.com/projects/4866)
 [![Jenkins Build](http://ci.zgun-family.eu/job/BEURK/badge/icon)](http://ci.zgun-family.eu/job/BEURK/)
+[![Join the chat at https://gitter.im/unix-thrust/beurk](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/unix-thrust/beurk)
 
 **BEURK** is an userland [preload rootkit] for GNU/Linux, heavily focused
 around anti-debugging and anti-detection.
@@ -15,7 +15,6 @@ around anti-debugging and anti-detection.
 >
 > *- The core team -*
 
-[![Join the chat at https://gitter.im/unix-thrust/beurk](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/unix-thrust/beurk)
 
 -------------------------------------------------------------------------------
 
