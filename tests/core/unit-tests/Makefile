@@ -7,7 +7,7 @@ CFLAGS	:= -I$(ROOTDIR)/includes -Wall -Wextra
 LDFLAGS	:= -L$(ROOTDIR) -lselinux
 
 CONFIG	= $(ROOTDIR)/src/config.c
-SRC		= main.c
+SRC		= $(wildcard *.c)
 OBJ_DIR	= objs
 OBJ		= $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o) config.o)
 

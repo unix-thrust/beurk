@@ -5,19 +5,21 @@ python:
     - "2.7"
 
 env:
-    - CC=gcc   ARCH=x86
-    - CC=gcc   ARCH=x64
-    - CC=clang ARCH=x86
-    - CC=clang ARCH=x64
+    - CC=gcc
+    - CC=clang
 
 install:
+    - "pip install cpp-coveralls"
     - sudo apt-get update -qq
     - sudo apt-get install libpam-dev
     - sudo apt-get install libssl-dev
     - sudo apt-get install libpcap-dev
 
 script:
-    make test
+    - make test && make coverage
+
+after_success:
+    - coveralls --exclude-pattern *.h.gcov
 
 notification:
     webhooks:

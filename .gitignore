@@ -1,6 +1,7 @@
 # Recommended gitignore entries for BEURK project
 /includes/config.h
 /src/config.c
+/obj
 *.o
 *.so
-*.gcno
+*.gcov

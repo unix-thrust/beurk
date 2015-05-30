@@ -60,12 +60,6 @@ make distclean
 ! test -e includes/config.h
 
 
-#### test make coverage
-make distclean
-! make coverage
-make coverage 2>&1 | grep TODO
-
-
 #### test make infect
 make distclean
 ! make infect
