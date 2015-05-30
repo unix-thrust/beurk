@@ -51,12 +51,12 @@ done < <(find "$1" -type f -perm +111 | grep "${TESTDIR}/")
 echo
 if [ $errors -eq 0 ]; then
     print_info "$BANNER TESTS SUMMARY "
-    print_info "All tests ($tests) succeeded ! "
+    print_info "All tests ($tests) succeeded! "
     print_info "$BANNER\n"
     exit 0
 else
     print_bad "$BANNER TESTS SUMMARY "
-    print_bad "Some tests ($errors/$tests) failed ! "
+    print_bad "Some tests ($errors/$tests) failed! "
     print_bad "$BANNER\n"
     exit 1
 fi
