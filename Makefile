@@ -8,7 +8,8 @@ BEURK_DEBUG_LEVEL	?= $(shell sed -ne 's/^DEBUG_LEVEL\s*=\s*//p' < $(BEURK_CONFIG
 BEURK_INSTALL_DIR	?= $(shell sed -ne 's/^INSTALL_DIR\s*=\s*//p' < $(BEURK_CONFIG_FILE))
 
 # compiler options
-CFLAGS		:= -Iincludes -Wall -Wextra -Winline -Wunknown-pragmas -D_GNU_SOURCE
+INLCUDES	:= -Iincludes
+CFLAGS		= $(INLCUDES) -Wall -Wextra -Winline -Wunknown-pragmas -D_GNU_SOURCE
 LDLIBS		:= -lc -ldl -lutil -lpam -lgcov
 
 # take sources from /src and /src/hooks
@@ -57,6 +58,11 @@ obj/%.o: $(addprefix src/, %.c)
 		$(CC) $(CFLAGS) -fPIC -g -O0 -c $< -o $@; \
 		echo $(CC) $(CFLAGS) -fPIC -g -O0 -c $< -o $@; \
 	fi
+
+# include header dependencies (use make dep to generate this)
+include Makefile.dep
+dep: src/config.c
+	$(CC) $(INLCUDES) -MM $(SOURCES) > Makefile.dep
 
 # build evil hooking library (not relink)
 all: $(BEURK_LIBRARY_NAME)
