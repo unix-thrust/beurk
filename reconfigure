@@ -84,7 +84,7 @@ CONFIG_KEYS = {
         "ENV_LINE": type_str,
         "PROC_NET_TCP": type_str,
         "PROC_NET_TCP6": type_str,
-        "SCANF_FMT": type_str,
+        "SCANF_PROC_NET_TCP": type_str,
         }
 
 def get_config(lines, check_missing_vars=True):

