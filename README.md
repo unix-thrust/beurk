@@ -44,7 +44,7 @@ around anti-debugging and anti-detection.
 ```
 * **Enjoy !**
 ```sh
-    ./client victim_ip:port # connect with furtive backdoor
+    ./client.py victim_ip:port # connect with furtive backdoor
 ```
 
 ### Dependencies ###
