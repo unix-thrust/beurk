@@ -8,7 +8,8 @@ BEURK_DEBUG_LEVEL	?= $(shell sed -ne 's/^DEBUG_LEVEL\s*=\s*//p' < $(BEURK_CONFIG
 BEURK_INSTALL_DIR	?= $(shell sed -ne 's/^INSTALL_DIR\s*=\s*//p' < $(BEURK_CONFIG_FILE))
 
 # compiler options
-CFLAGS		:= -Iincludes -Wall -Wextra -Winline -Wunknown-pragmas -D_GNU_SOURCE
+INCLUDES	:= -Iincludes
+CFLAGS		= $(INCLUDES) -Wall -Wextra -Winline -Wunknown-pragmas -D_GNU_SOURCE
 LDLIBS		:= -lc -ldl -lutil -lpam -lgcov
 
 # take sources from /src and /src/hooks
@@ -50,21 +51,27 @@ COVERAGE	= $(patsubst src/%.c, obj/%.gcda, $(SOURCES))
 # build separate objects
 obj/%.o: $(addprefix src/, %.c)
 	@mkdir -p `dirname $@`
-	@echo $@
 	@if [ $(BEURK_DEBUG_LEVEL) -eq 0 ]; then \
 		$(CC) $(CFLAGS) -fPIC -fvisibility=hidden -c $< -o $@; \
+		echo $(CC) $(CFLAGS) -fPIC -fvisibility=hidden -c $< -o $@; \
 	else \
 		$(CC) $(CFLAGS) -fPIC -g -O0 -c $< -o $@; \
+		echo $(CC) $(CFLAGS) -fPIC -g -O0 -c $< -o $@; \
 	fi
+
+# include header dependencies (use make dep to generate this)
+include Makefile.dep
+dep: includes/config.h
+	$(CC) $(INCLUDES) -MM $(SOURCES) > Makefile.dep
 
 # build evil hooking library (not relink)
 all: $(BEURK_LIBRARY_NAME)
 
 # generate includes/config.h and src/config.c with builder
-src/config.c:
+includes/config.h:
 	./reconfigure $(BEURK_CONFIG_FILE)
 
-$(BEURK_LIBRARY_NAME): src/config.c $(OBJECTS)
+$(BEURK_LIBRARY_NAME): includes/config.h $(OBJECTS)
 	$(CC) -fPIC -shared -Wl,-soname,$(BEURK_LIBRARY_NAME) $(OBJECTS) \
 		$(LDLIBS) -o $(BEURK_LIBRARY_NAME)
 ifeq ($(BEURK_DEBUG_LEVEL), 0)

