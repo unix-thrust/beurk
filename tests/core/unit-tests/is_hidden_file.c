@@ -8,6 +8,8 @@
 void    test_is_hidden_file(unsigned int *count, unsigned int *total) {
     char str[128];
 
+    *count += assert_true(!is_hidden_file("zaphod"), ++(*total),
+            "is_hidden_file(%s)", "\"zaphod\"");
     *count += assert_true(is_hidden_file(MAGIC_STRING), ++(*total),
             "is_hidden_file(%s)", MAGIC_STRING);
     *count += assert_true(is_hidden_file(LIBRARY_NAME), ++(*total),
