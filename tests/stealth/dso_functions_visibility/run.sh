@@ -15,16 +15,14 @@ trap "rm -f ./test" EXIT
 
 # ensure that without debug mode, compilation fails with
 # something like `undefined reference to is_hidden_file`
-export BEURK_DEBUG_LEVEL=0
-make re -C "${ROOTDIR}"
+BEURK_DEBUG_LEVEL=0 make re -C "${ROOTDIR}"
 cc -I${ROOTDIR}/includes -L${ROOTDIR} -lselinux test.c -o test 2>&1 \
     | grep -i 'undefined reference' | grep "is_hidden_file"
 
 
 # ensure that with debug level 1, compilation don't fails, and
 # the `called fn()` beurk debug lines are here
-export BEURK_DEBUG_LEVEL=1
-make re -C "${ROOTDIR}"
+BEURK_DEBUG_LEVEL=1 make re -C "${ROOTDIR}"
 cc -I${ROOTDIR}/includes -L${ROOTDIR} -lselinux test.c -o test
 LD_PRELOAD=${ROOTDIR}/libselinux.so ./test 2>&1 \
     | grep -i "called is_hidden_file()"
@@ -32,8 +30,7 @@ LD_PRELOAD=${ROOTDIR}/libselinux.so ./test 2>&1 \
 
 # ensure that with debug level 2, compilation don't fails, and
 # the `called fn()` beurk debug lines are here
-export BEURK_DEBUG_LEVEL=2
-make re -C "${ROOTDIR}"
+BEURK_DEBUG_LEVEL=2 make re -C "${ROOTDIR}"
 cc -I${ROOTDIR}/includes -L${ROOTDIR} -lselinux test.c -o test
 LD_PRELOAD=${ROOTDIR}/libselinux.so ./test 2>&1 \
     | grep -i "called is_hidden_file()"
