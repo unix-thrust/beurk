@@ -22,6 +22,7 @@ int     main(void) {
     test_is_attacker(&count, &total);
     test_is_hidden_file(&count, &total);
     test_is_procnet(&count, &total);
+    test_open(&count, &total);
 
     printf("Error(s) found: %d\n", total - count);
     return ((int)total - (int)count);
