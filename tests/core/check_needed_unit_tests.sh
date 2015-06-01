@@ -34,3 +34,4 @@ while read filename; do
 done < <(ls -1 src/*.c | cut -d'/' -f2)
 
 [ $errors -ne 0 ] && exit 1
+exit 0
