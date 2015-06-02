@@ -15,7 +15,7 @@ install:
     - sudo apt-get install libpcap-dev
 
 before_script:
-    - $(CC) -v
+    - $CC -v
 
 script:
     - make test && make coverage
