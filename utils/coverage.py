@@ -1,7 +1,9 @@
 import os, string, hashlib
+import requests, json
 
 job_id = os.getenv("TRAVIS_JOB_ID", "job_id")
 pwd = os.getenv("TRAVIS_BUILD_DIR", "..")
+url = "https://coveralls.io/api/v1/jobs"
 
 coverage = """{
   "service_job_id": "%(job_id)s",
@@ -50,11 +52,20 @@ for i, j, k in sources:
             "file_cover": k,
             })
 
-
 coverage %= {
         "job_id": job_id,
         "sources": string.join(srcs, ",\n")
         }
 
-with open(os.path.join(pwd, "coverage.json"), "w+") as json:
-    json.write(coverage)
+with open(os.path.join(pwd, "coverage.json"), "w+") as json_file:
+    json_file.write(coverage)
+
+print "Posting coverage to coveralls.io\n"
+
+responle = requests.post(url, files = { "json_file": json.dumps(coverage) })
+try:
+        result = response.json()
+except Error:
+    result = {"error": "Failed to submit data. "
+            "Response [%s]: %s\n" % response.status_code, response.text}
+    print(result)
