@@ -46,8 +46,7 @@ class Client:
         sys.stdout.write(data)
         sys.stdout.flush()
 
-    def loop_batch(self, batch):
-        fd = open(batch, "r")
+    def loop_batch(self, batch, fd):
         self.s.send("\n")
         for line in fd:
             self.s.send(line)
@@ -82,6 +81,13 @@ class Client:
 if len(sys.argv) < 4:
     Client.usage(sys.argv[0])
     exit(1)
+elif len(sys.argv) >= 6:
+    try:
+        fd = open(sys.argv[5], "r")
+    except IOError:
+        print "cannot open", sys.argv[5]
+        Client.usage(sys.argv[0])
+        exit(1)
 
 client = Client(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]))
 if len(sys.argv) == 4:
@@ -94,6 +100,6 @@ if len(sys.argv) == 5:
     client.loop()
 elif len(sys.argv) == 6:
     client.password(sys.argv[4])
-    client.loop_batch(sys.argv[5])
+    client.loop_batch(sys.argv[5], fd)
 client.close()
 
