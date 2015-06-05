@@ -1,5 +1,5 @@
 #!/bin/bash
-
+echo $#
 # run-tests.sh:
 #   Run a test script or all tests contained in
 #   a given directory, in a recursive manner.
@@ -33,6 +33,7 @@ function usage () {
 tests=0
 errors=0
 while read test_script; do
+    [ -x "$test_script" ] || continue
     print_info "$BANNER"
     print_info "RUNNING $test_script ..."
     print_info "$BANNER"
@@ -44,7 +45,7 @@ while read test_script; do
     fi
     echo -e "\n"
     (( ++tests ))
-done < <(find "$1" -type f -perm +111 | grep "${TESTDIR}/")
+done < <(find "$1" -type f | grep "${TESTDIR}/")
 
 [ $tests -gt 0 ] || usage
 
