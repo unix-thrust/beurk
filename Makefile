@@ -52,8 +52,8 @@ COVERAGE	= $(patsubst src/%.c, obj/%.gcda, $(SOURCES))
 obj/%.o: $(addprefix src/, %.c)
 	@mkdir -p `dirname $@`
 	@if [ $(BEURK_DEBUG_LEVEL) -eq 0 ]; then \
-		$(CC) $(CFLAGS) -fPIC -fvisibility=hidden -c $< -o $@; \
-		echo $(CC) $(CFLAGS) -fPIC -fvisibility=hidden -c $< -o $@; \
+		$(CC) $(CFLAGS) -fPIC -c $< -o $@; \
+		echo $(CC) $(CFLAGS) -fPIC -c $< -o $@; \
 	else \
 		$(CC) $(CFLAGS) -fPIC -g -O0 -c $< -o $@; \
 		echo $(CC) $(CFLAGS) -fPIC -g -O0 -c $< -o $@; \
