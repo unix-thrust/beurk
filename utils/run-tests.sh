@@ -28,24 +28,31 @@ function usage () {
     exit 1
 }
 
-[ $# -eq 1 ] || usage
-
 tests=0
 errors=0
-while read test_script; do
-    [ -x "$test_script" ] || continue
-    print_info "$BANNER"
-    print_info "RUNNING $test_script ..."
-    print_info "$BANNER"
-    if "$test_script"; then
-        print_good "$test_script succeeded"
-    else
-        print_bad "$test_script failed !"
-        (( ++errors ))
-    fi
-    echo -e "\n"
-    (( ++tests ))
-done < <(find "$1" -type f | grep "${TESTDIR}/")
+function execute_scripts () {
+    for i in "$1"/*; do
+        if [ -d "$i" ]; then
+            execute_scripts "$i"
+        elif [ -f "$i" ] && [ -x "$i" ]; then
+            print_info "$BANNER"
+            print_info "RUNNING $i ..."
+            print_info "$BANNER"
+            if "$i"; then
+                print_good "$i succeeded"
+            else
+                print_bad "$i failed !"
+                (( ++errors ))
+            fi
+            echo -e "\n"
+            (( ++tests ))
+        fi
+    done
+}
+
+[ $# -eq 1 ] || usage
+
+execute_scripts $1
 
 [ $tests -gt 0 ] || usage
 
