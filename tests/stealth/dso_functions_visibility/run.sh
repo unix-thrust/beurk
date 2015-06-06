@@ -1,11 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # test: dso_functions_visibility
 #
 # Verify that internal API functions are NOT callable when
 # DSO (libselinux.so) is compiled normally (in non debug mode)
 
-set -ve
+set -o errexit
+set -o verbose
+
 cd `dirname $0`
 ROOTDIR="$(git rev-parse --show-toplevel)"
 

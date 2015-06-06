@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ROOTDIR=$(git rev-parse --show-toplevel)
 count=0

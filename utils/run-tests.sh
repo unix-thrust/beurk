@@ -1,5 +1,5 @@
-#!/bin/bash
-echo $#
+#!/usr/bin/env bash
+
 # run-tests.sh:
 #   Run a test script or all tests contained in
 #   a given directory, in a recursive manner.
