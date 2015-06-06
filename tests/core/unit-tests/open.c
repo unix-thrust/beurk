@@ -1,9 +1,8 @@
 #include <errno.h>
+#include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include "beurk.h" /* all tested functions */
 #include "config.h" /* all literals */
-#include "hooks.h" /* open() */
 #include "tests.h" /* assert_true() */
 
 void    test_open(unsigned int *count, unsigned int *total) {

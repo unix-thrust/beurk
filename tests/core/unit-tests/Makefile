@@ -1,8 +1,7 @@
 SHELL	:= /bin/bash
-TARGET	= unit-tests
+TARGET	= test
 
 ROOTDIR	= $(shell git rev-parse --show-toplevel)
-LIB		= $(ROOTDIR)/libselinux.so
 
 CFLAGS	:= -I$(ROOTDIR)/includes -Wall -Wextra
 LDLIBS	:= -lselinux
@@ -15,10 +14,7 @@ OBJ		= $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o) config.o)
 
 .PHONY: all clean distclean re
 
-all: $(LIB) $(OBJ_DIR) $(TARGET)
-
-$(LIB):
-	BEURK_DEBUG_LEVEL=1 $(MAKE) -C $(ROOTDIR)
+all: $(OBJ_DIR) $(TARGET)
 
 $(OBJ_DIR):
 	mkdir $(OBJ_DIR)
@@ -33,7 +29,7 @@ $(OBJ_DIR)/%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	-$(RM) $(OBJ)
+	rm -rf $(OBJ_DIR)
 
 distclean: clean
 	-$(RM) $(TARGET)
