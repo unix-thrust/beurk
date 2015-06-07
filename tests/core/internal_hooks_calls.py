@@ -20,10 +20,10 @@ assert os.system(buildcmd) == 0
 
 # get all hooked functions
 hooked_functions = []
-regex = re.compile("^.+\\b(\w+)\(.*\)\s+_HOOKED\s*;\s*$")
+regex = re.compile("^.+\\b(\w+)\(.*\)\s*;\s*$")
 header = open("includes/hooks.h").read()
 header = header.replace("\\\n", "").splitlines()
-header = [l for l in header if not l.startswith("#") and "_HOOKED" in l]
+header = [l for l in header if not l.startswith("#")]
 for line in header:
     try:
         match = list(regex.match(line).groups())

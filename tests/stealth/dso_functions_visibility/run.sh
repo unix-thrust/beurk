@@ -13,6 +13,23 @@ ROOTDIR="$(git rev-parse --show-toplevel)"
 
 trap "rm -f ./test" EXIT
 
+function print_bad () {
+    echo -e "\033[1;31m[-]\033[0;31m $1\033[0m"
+}
+
+# ensure that all internal api function prototypes are
+# set with `INTERNAL_API` macro
+EXCLUDE_FILES=" init.c debug.c config.c "
+for source_file in $ROOTDIR/src/*.c; do
+    filename=$(basename $source_file)
+    [[ "$EXCLUDE_FILES" =~ ' '$filename' ' ]] && continue
+    function_name="${filename%.*}"
+    grep -Eq \
+        '[[:space:]]+\**'"$function_name"'\(.+\)[[:space:]]+INTERNAL_API' \
+        "$ROOTDIR/includes/beurk.h" \
+        || print_bad "malformed prototype '$function_name' on includes/beurk.h"
+done
+exit 0
 
 # ensure that without debug mode, compilation fails with
 # something like `undefined reference to is_hidden_file()`
