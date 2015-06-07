@@ -194,6 +194,12 @@ CONFIG_H = """/*
 # define _CONFIG_H_
 
 # include <stdlib.h>
+# include <sys/types.h> /* ssize_t */
+
+/* fix compatibility */
+#ifndef _STAT_VER
+# define _STAT_VER	0
+#endif
 
 /* common macros from beurk config file */
 %(common_macros)s

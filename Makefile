@@ -1,4 +1,5 @@
 # use bash as Makefile's shell
+UNAME				:= $(shell uname -s)
 SHELL				:= /bin/bash
 
 # set default config values (can be overidden by setting env vars)
@@ -10,7 +11,11 @@ BEURK_INSTALL_DIR	?= $(shell grep -E '^INSTALL_DIR[[:space:]]*=' $(BEURK_CONFIG_
 # compiler options
 INCLUDES	:= -Iincludes
 CFLAGS		= $(INCLUDES) -Wall -Wextra -Winline -Wunknown-pragmas -D_GNU_SOURCE
-LDLIBS		:= -lc -ldl -lutil -lpam -lgcov
+LDLIBS		= -lc -lutil -lpam -lgcov
+# unix systems provides dlsym()/dlopen() symbols on libc
+ifeq ($(UNAME), Linux)
+    LDLIBS += -ldl
+endif
 
 # take sources from /src and /src/hooks
 SOURCES		= src/init.c \
@@ -28,7 +33,6 @@ SOURCES		= src/init.c \
 			  src/hooks/fopen.c \
 			  src/hooks/fopen64.c \
 			  src/hooks/readdir.c \
-			  src/hooks/readdir64.c \
 			  src/hooks/lstat.c \
 			  src/hooks/__lxstat.c \
 			  src/hooks/lstat64.c \
@@ -42,6 +46,10 @@ SOURCES		= src/init.c \
 			  src/hooks/stat64.c \
 			  src/hooks/__xstat64.c \
 			  src/hooks/accept.c
+# doesn't exist on unix systems
+ifeq ($(UNAME), Linux)
+    SOURCES	+= src/hooks/readdir64.c
+endif
 OBJECTS		= $(patsubst src/%.c, obj/%.o, $(SOURCES))
 COVERAGE	= $(patsubst src/%.c, obj/%.gcda, $(SOURCES))
 

