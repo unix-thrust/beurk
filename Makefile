@@ -3,9 +3,9 @@ SHELL				:= /bin/bash
 
 # set default config values (can be overidden by setting env vars)
 BEURK_CONFIG_FILE	?= beurk.conf
-BEURK_LIBRARY_NAME	?= $(shell sed -ne 's/^LIBRARY_NAME\s*=\s*//p' < $(BEURK_CONFIG_FILE))
-BEURK_DEBUG_LEVEL	?= $(shell sed -ne 's/^DEBUG_LEVEL\s*=\s*//p' < $(BEURK_CONFIG_FILE))
-BEURK_INSTALL_DIR	?= $(shell sed -ne 's/^INSTALL_DIR\s*=\s*//p' < $(BEURK_CONFIG_FILE))
+BEURK_LIBRARY_NAME	?= $(shell grep -E '^LIBRARY_NAME[[:space:]]*=' $(BEURK_CONFIG_FILE) | cut -d= -f2 | xargs)
+BEURK_DEBUG_LEVEL	?= $(shell grep -E '^DEBUG_LEVEL[[:space:]]*=' $(BEURK_CONFIG_FILE) | cut -d= -f2 | xargs)
+BEURK_INSTALL_DIR	?= $(shell grep -E '^INSTALL_DIR[[:space:]]*=' $(BEURK_CONFIG_FILE) | cut -d= -f2 | xargs)
 
 # compiler options
 INCLUDES	:= -Iincludes
