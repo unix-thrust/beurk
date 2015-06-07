@@ -15,13 +15,13 @@ LDLIBS		:= -lc -ldl -lutil -lpam -lgcov
 # take sources from /src and /src/hooks
 SOURCES		= src/init.c \
 			  src/config.c \
-			  src/cleanup_login_records.c \
 			  src/debug.c \
-			  src/drop_shell_backdoor.c \
 			  src/is_hidden_file.c \
-			  src/hide_tcp_ports.c \
-			  src/is_procnet.c \
 			  src/is_attacker.c \
+			  src/is_procnet.c \
+			  src/hide_tcp_ports.c \
+			  src/cleanup_login_records.c \
+			  src/drop_shell_backdoor.c \
 			  \
 			  src/hooks/access.c \
 			  src/hooks/rmdir.c \
@@ -51,13 +51,7 @@ COVERAGE	= $(patsubst src/%.c, obj/%.gcda, $(SOURCES))
 # build separate objects
 obj/%.o: $(addprefix src/, %.c)
 	@mkdir -p `dirname $@`
-	@if [ $(BEURK_DEBUG_LEVEL) -eq 0 ]; then \
-		$(CC) $(CFLAGS) -fPIC -c $< -o $@; \
-		echo $(CC) $(CFLAGS) -fPIC -c $< -o $@; \
-	else \
-		$(CC) $(CFLAGS) -fPIC -g -O0 -c $< -o $@; \
-		echo $(CC) $(CFLAGS) -fPIC -g -O0 -c $< -o $@; \
-	fi
+	$(CC) $(CFLAGS) -fPIC -g -O0 -c $< -o $@
 
 # include header dependencies (use make dep to generate this)
 include Makefile.dep
