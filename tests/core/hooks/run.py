@@ -22,7 +22,10 @@ ROOTDIR=commands.getoutput("git rev-parse --show-toplevel").strip()
 assert os.path.isdir(ROOTDIR)
 
 # compile BEURK for hooks testing
-buildcmd = "BEURK_DEBUG_LEVEL=1 make re -C " + ROOTDIR
+if os.uname()[0] == 'FreeBSD':
+    buildcmd = "BEURK_DEBUG_LEVEL=1 gmake re -C " + ROOTDIR
+else:
+    buildcmd = "BEURK_DEBUG_LEVEL=1 make re -C " + ROOTDIR
 assert os.system(buildcmd) == 0
 
 # move to script directory

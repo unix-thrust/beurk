@@ -14,7 +14,10 @@ from pprint import pprint
 os.chdir(commands.getoutput("git rev-parse --show-toplevel").strip())
 
 # compile BEURK for hooks testing
-buildcmd = "BEURK_DEBUG_LEVEL=1 make re"
+if os.uname()[0] == 'FreeBSD':
+    buildcmd = "BEURK_DEBUG_LEVEL=1 gmake re"
+else:
+    buildcmd = "BEURK_DEBUG_LEVEL=1 make re"
 print("$ " + buildcmd)
 assert os.system(buildcmd) == 0
 
