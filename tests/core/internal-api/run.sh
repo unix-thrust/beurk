@@ -10,11 +10,19 @@ else
 fi
 
 ROOTDIR=$(git rev-parse --show-toplevel)
+cd `dirname $0`
 
-UNIT_TESTS="tests/core/internal-api"
+# distclean at exit
+trap "make distclean || exit 1" EXIT
 
-$MAKE -C ${ROOTDIR}/${UNIT_TESTS}
-LD_LIBRARY_PATH=${ROOTDIR}:$LD_LIBRARY_PATH ${ROOTDIR}/${UNIT_TESTS}/unit-tests
-BEURK_ATTACKER=true LD_LIBRARY_PATH=${ROOTDIR}:$LD_LIBRARY_PATH \
-    ${ROOTDIR}/${UNIT_TESTS}/unit-tests
-$MAKE distclean -C ${ROOTDIR}/${UNIT_TESTS}
+# rebuild test
+make re
+
+# use BEURK DSO library path
+export LD_LIBRARY_PATH=${ROOTDIR}:${LD_LIBRARY_PATH}
+
+# run test as victim
+./unit-tests
+
+# run test as attacker
+BEURK_ATTACKER=true ./unit-tests

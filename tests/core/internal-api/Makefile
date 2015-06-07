@@ -33,10 +33,10 @@ $(OBJ_DIR)/%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	-$(RM) $(OBJ)
+	$(RM) -r $(OBJ_DIR)
 
 distclean: clean
-	-$(RM) $(TARGET)
+	$(RM) $(TARGET)
 
 re: distclean all
 
