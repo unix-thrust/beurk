@@ -19,7 +19,7 @@
  */
 
 #include <stdio.h> /* FILE, tmpfile(), fgets(), fclose(), rewind() */
-#include <limits.h> /* PATH_MAX */
+#include <limits.h> /* LINE_MAX */
 #include "beurk.h" /* prototype */
 #include "config.h" /* PROC_NET_TCP, ... */
 #include "debug.h" /* DEBUG() */
