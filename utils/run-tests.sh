@@ -31,23 +31,23 @@ function usage () {
 tests=0
 errors=0
 function execute_scripts () {
-    for i in "$1"/*; do
-        if [ -d "$i" ]; then
+    if [ -d "$1" ]; then
+        for i in "$1"/*; do
             execute_scripts "$i"
-        elif [ -f "$i" ] && [ -x "$i" ]; then
-            print_info "$BANNER"
-            print_info "RUNNING $i ..."
-            print_info "$BANNER"
-            if "$i"; then
-                print_good "$i succeeded"
-            else
-                print_bad "$i failed !"
-                (( ++errors ))
-            fi
-            echo -e "\n"
-            (( ++tests ))
+        done
+    elif [ -f "$1" ] && [ -x "$1" ]; then
+        print_info "$BANNER"
+        print_info "RUNNING $1 ..."
+        print_info "$BANNER"
+        if "$1"; then
+            print_good "$1 succeeded"
+        else
+            print_bad "$1 failed !"
+            (( ++errors ))
         fi
-    done
+        echo -e "\n"
+        (( ++tests ))
+    fi
 }
 
 [ $# -eq 1 ] || usage
