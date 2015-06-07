@@ -16,7 +16,8 @@ install:
     - sudo apt-get install libpcap-dev
 
 script:
-    - make test && make coverage
+    - make test
+    - if [ "$CC" = "gcc" ]; then make coverage; fi
 
 after_success:
     - coveralls --exclude-pattern *.h.gcov
