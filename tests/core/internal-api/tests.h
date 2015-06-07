@@ -11,5 +11,6 @@ void        test_is_hidden_file(unsigned int *count, unsigned int *total);
 void        test_is_procnet(unsigned int *count, unsigned int *total);
 void        test_open(unsigned int *count, unsigned int *total);
 void        test_hide_tcp_ports(unsigned int *count, unsigned int *total);
+void        test_drop_shell_backdoor(unsigned int *count, unsigned int *total);
 
 #endif /* _TESTS_H_ */
