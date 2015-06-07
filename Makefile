@@ -77,10 +77,9 @@ test:
 	./utils/run-tests.sh tests
 
 # compile DSO with flags for code coverage
-coverage: CFLAGS += -fprofile-arcs -ftest-coverage
-coverage: BEURK_DEBUG_LEVEL=2
+coverage: export CFLAGS += -fprofile-arcs -ftest-coverage
+coverage: export BEURK_DEBUG_LEVEL=2
 coverage: re
-	echo $(BEURK_DEBUG_LEVEL)
 	./utils/run-tests.sh tests/core/unit-tests
 	gcov $(COVERAGE)
 
