@@ -11,7 +11,7 @@ EXCLUDE_FILES=" init.c debug.c config.c "
 
 # location for unit test .c files
 # (the same filename is expected than for sources)
-UNIT_TEST_DIR="./tests/core/unit-tests"
+UNIT_TEST_DIR="./tests/core/internal-api"
 
 cd `git rev-parse --show-toplevel` || exit 1
 

@@ -5,7 +5,7 @@ set -o verbose
 
 ROOTDIR=$(git rev-parse --show-toplevel)
 
-UNIT_TESTS="tests/core/unit-tests"
+UNIT_TESTS="tests/core/internal-api"
 
 make -C ${ROOTDIR}/${UNIT_TESTS}
 LD_LIBRARY_PATH=${ROOTDIR}:$LD_LIBRARY_PATH ${ROOTDIR}/${UNIT_TESTS}/unit-tests
