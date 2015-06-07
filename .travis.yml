@@ -9,17 +9,19 @@ env:
     - CC=clang
 
 install:
-    - "pip install cpp-coveralls"
     - sudo apt-get update -qq
     - sudo apt-get install libpam-dev
     - sudo apt-get install libssl-dev
     - sudo apt-get install libpcap-dev
 
+before_script:
+    - $CC -v
+
 script:
     - make test && make coverage
 
 after_success:
-    - coveralls --exclude-pattern *.h.gcov
+    - python2 utils/coverage.py
 
 notification:
     webhooks:
