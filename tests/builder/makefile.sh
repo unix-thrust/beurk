@@ -5,6 +5,12 @@
 # Ensure that Makefile works as expected in
 # some scenarios for building the rootkit
 
+if [ `uname -s` = "FreeBSD" ]; then
+    MAKE=gmake
+else
+    MAKE=make
+fi
+
 DSO=libselinux.so
 
 set -ve
@@ -12,22 +18,22 @@ cd `git rev-parse --show-toplevel`
 
 
 #### start with a clean repository
-make distclean
+$MAKE distclean
 
 
 #### ensure that an invalid rule fails
-! make foobar
+! $MAKE foobar
 
 
 #### run make multiple times, check for `nothing to do`
-make distclean
-make
-make all
-test `make all | grep -i nothing | wc -l` -eq "1"
+$MAKE distclean
+$MAKE
+$MAKE all
+test `$MAKE all | grep -i nothing | wc -l` -eq "1"
 
 
 #### test make re
-make re
+$MAKE re
 test -d obj/
 test -f "$DSO" -a -x "$DSO"
 nm --debug-syms "$DSO" 2>&1 | grep -iq 'no symbols'
@@ -35,7 +41,7 @@ nm --debug-syms "$DSO" 2>&1 | grep -iq 'no symbols'
 
 
 #### test make re with debug mode
-BEURK_DEBUG_LEVEL=1 make re
+BEURK_DEBUG_LEVEL=1 $MAKE re
 test -d obj/
 test -f "$DSO" -a -x "$DSO"
 ! nm --debug-syms "$DSO" 2>&1 | grep -iq 'no symbols'
@@ -43,8 +49,8 @@ strings "$DSO" | grep -q "_BEURK_"
 
 
 #### test make clean
-make
-make clean
+$MAKE
+$MAKE clean
 test -f "$DSO" -a -x "$DSO"
 ! test -e obj/
 test -e src/config.c
@@ -52,8 +58,8 @@ test -e includes/config.h
 
 
 #### test make distclean
-make
-make distclean
+$MAKE
+$MAKE distclean
 ! test -e "$DSO"
 ! test -e obj/
 ! test -e src/config.c
@@ -61,12 +67,12 @@ make distclean
 
 
 #### test make infect
-make distclean
-! make infect
-make infect 2>&1 | grep TODO
+$MAKE distclean
+! $MAKE infect
+$MAKE infect 2>&1 | grep TODO
 
 
 #### test make disinfect
-make distclean
-! make disinfect
-make disinfect 2>&1 | grep TODO
+$MAKE distclean
+! $MAKE disinfect
+$MAKE disinfect 2>&1 | grep TODO
