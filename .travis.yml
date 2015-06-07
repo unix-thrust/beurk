@@ -18,7 +18,8 @@ before_script:
     - $CC -v
 
 script:
-    - make test && make coverage
+    - make test
+    - if [ "$CC" = "gcc" ]; then make coverage; fi
 
 after_success:
     - python2 utils/coverage.py

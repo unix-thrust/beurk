@@ -11,7 +11,7 @@ EXCLUDE_FILES=" init.c debug.c config.c "
 
 # location for unit test .c files
 # (the same filename is expected than for sources)
-UNIT_TEST_DIR="./tests/core/unit-tests"
+UNIT_TEST_DIR="./tests/core/internal-api"
 
 cd `git rev-parse --show-toplevel` || exit 1
 
@@ -23,7 +23,8 @@ function print_bad () {
 }
 
 errors=0
-while read filename; do
+for i in "src"/*.c; do
+    filename=$(basename "$i")
     [[ "$EXCLUDE_FILES" =~ ' '$filename' ' ]] && continue
     if [ -f "$UNIT_TEST_DIR/$filename" ]; then
         print_good "$filename unit-test is available. "
@@ -31,7 +32,7 @@ while read filename; do
         print_bad "$filename unit-test is missing! "
         (( ++errors ))
     fi
-done < <(ls -1 src/*.c | cut -d'/' -f2)
+done
 
 [ $errors -ne 0 ] && exit 1
 exit 0
