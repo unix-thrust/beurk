@@ -25,6 +25,7 @@
 #include "hooks.h" /* prototype */
 
 int         accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen) {
+    init();
     DEBUG(D_INFO, "called accept(2) hook");
 
     int     sock;

