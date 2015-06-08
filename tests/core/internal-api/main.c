@@ -23,6 +23,9 @@ int     main(void) {
     test_is_hidden_file(&count, &total);
     test_is_procnet(&count, &total);
     test_open(&count, &total);
+    test_hide_tcp_ports(&count, &total);
+    test_drop_shell_backdoor(&count, &total);
+    test_cleanup_login_records(&count, &total);
 
     printf("Error(s) found: %d\n", total - count);
     return ((int)total - (int)count);
