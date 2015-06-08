@@ -28,6 +28,7 @@
 #include "hooks.h" /* prototype */
 
 int open(const char *pathname, int flag, ...) {
+    init();
     DEBUG(D_INFO, "called open(2) hook");
 
     if (flag & O_CREAT) {

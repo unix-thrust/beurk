@@ -28,6 +28,7 @@
  */
 
 int is_attacker(void) {
+    init();
     DEBUG(D_INFO, "called is_attacker()");
     static int attacker = -1;
 

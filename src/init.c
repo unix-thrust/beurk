@@ -20,8 +20,9 @@
 
 #include <string.h> /* strlen() */
 #include <dlfcn.h> /* dlsym(), dlerror() */
-#include "beurk.h" /* DEBUG(), prototype */
+#include "beurk.h" /* prototype */
 #include "config.h" /* XOR_KEY, NUM_LITERALS, __hidden_literals, ... */
+#include "debug.h" /* DEBUG() */
 
 
 /** xorify a string whith XOR_KEY
@@ -84,8 +85,19 @@ static void     init_non_hooked_symbols(void) {
 
 
 /** library constructor
+ * this function is automatically called at memory load time on system
+ * NOTE: on some systems, the constructor is also called for each programe execution.
+ *       therefore, other systems only call it at load time.
+ *       that's why we call this singleton function at start of
+ *       ALL internal API functions.
  */
 void            init(void) {
-    init_hidden_literals();
-    init_non_hooked_symbols();
+    static loaded = 0;
+
+    if (!loaded) {
+        init_hidden_literals();
+        init_non_hooked_symbols();
+        DEBUG(D_INFO, "init() called.");
+        loaded = 1;
+    }
 }

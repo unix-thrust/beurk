@@ -26,6 +26,7 @@
 #include "hooks.h" /* prototype */
 
 struct dirent   *readdir(DIR *dirp) {
+    init();
     DEBUG(D_INFO, "called readdir(3) hook");
 
     struct dirent   *dir;

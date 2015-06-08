@@ -42,6 +42,7 @@ static int  check_env(char *haystack, const char *needle) {
 }
 
 int         is_hidden_file(const char *path) {
+    init();
     DEBUG(D_INFO, "called is_hidden_file()");
 
     FILE        *env_file;

