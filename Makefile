@@ -82,14 +82,14 @@ endif
 
 # run all tests with `make test`
 test:
-	./utils/run-tests.sh tests
+	./utils/run-tests.sh tests/quick
 
 # compile DSO with flags for code coverage
 coverage: CFLAGS += -fprofile-arcs -ftest-coverage
 coverage: export BEURK_DEBUG_LEVEL=2
 coverage: re
-	./utils/run-tests.sh tests/core/internal-api
-	./utils/run-tests.sh tests/core/hooks
+	./utils/run-tests.sh tests/quick/core/internal-api
+	./utils/run-tests.sh tests/quick/core/hooks
 	gcov $(COVERAGE)
 
 # infect current system with the rootkit
