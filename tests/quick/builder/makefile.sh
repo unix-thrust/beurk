@@ -68,11 +68,9 @@ $MAKE distclean
 
 #### test make infect
 $MAKE distclean
-! $MAKE infect
-$MAKE infect 2>&1 | grep TODO
+BEURK_DEBUG_LEVEL=1 $MAKE infect
 
 
 #### test make disinfect
 $MAKE distclean
-! $MAKE disinfect
-$MAKE disinfect 2>&1 | grep TODO
+BEURK_DEBUG_LEVEL=1 $MAKE disinfect

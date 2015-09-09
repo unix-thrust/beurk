@@ -1,18 +1,18 @@
-init.o: src/init.c includes/beurk.h includes/config.h
+init.o: src/init.c includes/beurk.h includes/config.h includes/debug.h
 config.o: src/config.c includes/config.h
-cleanup_login_records.o: src/cleanup_login_records.c includes/beurk.h \
- includes/config.h includes/debug.h
 debug.o: src/debug.c includes/config.h includes/debug.h
-drop_shell_backdoor.o: src/drop_shell_backdoor.c includes/beurk.h \
- includes/debug.h includes/config.h
 is_hidden_file.o: src/is_hidden_file.c includes/beurk.h includes/config.h \
- includes/debug.h
-hide_tcp_ports.o: src/hide_tcp_ports.c includes/beurk.h includes/config.h \
- includes/debug.h
-is_procnet.o: src/is_procnet.c includes/beurk.h includes/config.h \
  includes/debug.h
 is_attacker.o: src/is_attacker.c includes/beurk.h includes/config.h \
  includes/debug.h
+is_procnet.o: src/is_procnet.c includes/beurk.h includes/config.h \
+ includes/debug.h
+hide_tcp_ports.o: src/hide_tcp_ports.c includes/beurk.h includes/config.h \
+ includes/debug.h
+cleanup_login_records.o: src/cleanup_login_records.c includes/beurk.h \
+ includes/config.h includes/debug.h
+drop_shell_backdoor.o: src/drop_shell_backdoor.c includes/beurk.h \
+ includes/config.h includes/debug.h
 access.o: src/hooks/access.c includes/beurk.h includes/config.h \
  includes/debug.h includes/hooks.h
 rmdir.o: src/hooks/rmdir.c includes/beurk.h includes/config.h \
@@ -22,8 +22,6 @@ fopen.o: src/hooks/fopen.c includes/beurk.h includes/config.h \
 fopen64.o: src/hooks/fopen64.c includes/beurk.h includes/config.h \
  includes/debug.h includes/hooks.h
 readdir.o: src/hooks/readdir.c includes/beurk.h includes/config.h \
- includes/debug.h includes/hooks.h
-readdir64.o: src/hooks/readdir64.c includes/beurk.h includes/config.h \
  includes/debug.h includes/hooks.h
 lstat.o: src/hooks/lstat.c includes/beurk.h includes/config.h \
  includes/debug.h includes/hooks.h
@@ -50,4 +48,6 @@ stat64.o: src/hooks/stat64.c includes/beurk.h includes/config.h \
 __xstat64.o: src/hooks/__xstat64.c includes/beurk.h includes/config.h \
  includes/debug.h includes/hooks.h
 accept.o: src/hooks/accept.c includes/beurk.h includes/config.h \
+ includes/debug.h includes/hooks.h
+readdir64.o: src/hooks/readdir64.c includes/beurk.h includes/config.h \
  includes/debug.h includes/hooks.h
