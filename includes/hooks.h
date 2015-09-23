@@ -27,6 +27,7 @@
 # include <stdio.h> /* FILE */
 # include <sys/socket.h> /* struct sockaddr, socklen_t */
 # include <sys/stat.h> /* struct stat */
+# include <pcap/pcap.h> /* pcap_loop(), pcap_t, pcap_handler */
 
 /** Function hooks prototypes
  *
@@ -52,5 +53,6 @@ FILE            *fopen64(const char *path, const char *mode);
 int             link(const char *oldpath, const char *newpath);
 int             unlink(const char *pathname);
 int             unlinkat(int dirfd, const char *pathname, int flags);
+int             pcap_loop(pcap_t *p, int cnt, pcap_handler callback, u_char *user);
 
 #endif /* _DEBUG_H_ */
