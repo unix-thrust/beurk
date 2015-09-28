@@ -17,7 +17,7 @@ else
 endif
 
 # absolute install path
-BEURK_INFECT_ABSPATH	?= $(realpath $(BEURK_INFECT_DIR)/$(BEURK_LIBRARY_NAME))
+BEURK_INFECT_ABSPATH	?= $(BEURK_INFECT_DIR)/$(BEURK_LIBRARY_NAME)
 
 # compiler options
 INCLUDES	:= -Iincludes

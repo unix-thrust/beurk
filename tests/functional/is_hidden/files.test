@@ -1,8 +1,4 @@
-ATTACKER  "touch _BEURK_invisible_file"
-VICTIM    "ls | grep -v _BEURK_invisible_file"
-ATTACKER  "touch visible_file"
-ATTACKER  "pwd"
-VICTIM    "pwd"
-ATTACKER  "ls -la"
-VICTIM    "ls -la"
-VICTIM    "ls | grep visible_file"
+ATTACKER  'touch _BEURK_invisible_file'
+VICTIM    'ls | grep -v _BEURK_invisible_file'
+ATTACKER  'touch visible_file'
+VICTIM    'ls | grep visible_file'
