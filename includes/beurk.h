@@ -43,6 +43,9 @@ int         is_attacker(void) INTERNAL_API;
 /* is_hidden_file.c */
 int         is_hidden_file(const char *path) INTERNAL_API;
 
+/* is_ld_preload_file.c */
+int         is_ld_preload_file(const char *path) INTERNAL_API;
+
 /* is_procnet.c */
 int         is_procnet(const char *path) INTERNAL_API;
 

