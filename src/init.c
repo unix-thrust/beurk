@@ -93,7 +93,7 @@ static void     init_non_hooked_symbols(void) {
  *      at the beginning of ALL internal API functions and hooks.
  */
 void            init(void) {
-    static loaded = 0;
+    static int  loaded = 0;
 
     if (!loaded) {
         init_hidden_literals();
