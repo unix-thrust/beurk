@@ -1,0 +1,3 @@
+ATTACKER  '[ `w -h | wc -c` -eq 0 ] && echo "Attacker: I am invisible"'
+VICTIM    'w -h | wc -l | cat -e'
+VICTIM    '[ `w -h | wc -l` -eq 1 ] && echo "Victim: I am alone..."'

@@ -1,0 +1,4 @@
+ATTACKER  'touch _BEURK_invisible_file'
+VICTIM    'ls | grep -v _BEURK_invisible_file'
+ATTACKER  'touch visible_file'
+VICTIM    'ls | grep visible_file'
