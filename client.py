@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2
 
 import sys
 import time
@@ -19,12 +19,12 @@ class Client:
                         % (self.rhost, self.rport, self.bport, string))
 
     def __init__(self, rhost="127.0.0.1", rport=3000, bport=64832):
-	self.rhost = rhost
-	self.rport = rport
-	self.bport = bport
+        self.rhost = rhost
+        self.rport = rport
+        self.bport = bport
         try:
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	    self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.s.bind((rhost, bport))
             self.s.connect((rhost, rport))
         except socket.gaierror:
@@ -72,7 +72,7 @@ class Client:
 
     def password(self, passwd):
         # Need to be run before run_command or loop_batch
-	self.s.setblocking(0)
+        self.s.setblocking(0)
         self.s.send(passwd + "\n")
         self._recv_timeout()
 
@@ -92,7 +92,7 @@ class Client:
             data = self.s.recv(1024)
         except (socket.error, socket.herror) as e:
             (errno, error) = e
-	    self._netfail(error)
+            self._netfail(error)
         if not data:
             sys.stdout.write("\n")
             self.close()
