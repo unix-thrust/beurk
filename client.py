@@ -10,6 +10,7 @@ import signal
 import fcntl
 import os
 import struct
+import argparse
 
 
 class Client:
@@ -30,9 +31,6 @@ class Client:
         except Exception as e:
             self._netfail(str(e))
 
-    @staticmethod
-    def usage(name):
-        print "%s <address> <port> <bind_port> [password] [batch_file | -c command]" % name
 
     def tty_raw_mode(self):
         self.old_attrs = termios.tcgetattr(sys.stdin)
@@ -125,30 +123,34 @@ class Client:
             termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.old_attrs)
 
 
-if len(sys.argv) < 4:
-    Client.usage(sys.argv[0])
-    exit(1)
-elif len(sys.argv) == 6:
-    try:
-        fd = open(sys.argv[5], "r")
-    except IOError:
-        print "cannot open", sys.argv[5]
-        Client.usage(sys.argv[0])
-        exit(1)
 
-client = Client(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]))
-if len(sys.argv) == 4:
-    client.tty_raw_mode()
-    client.connection()
-    client.loop()
-if len(sys.argv) == 5:
-    client.tty_raw_mode()
-    client.connection(sys.argv[4])
-    client.loop()
-elif len(sys.argv) == 6:
-    client.password(sys.argv[4])
-    client.loop_batch(sys.argv[5], fd)
-elif len(sys.argv) == 7:
-    client.password(sys.argv[4])
-    client.run_command(sys.argv[6] + "\n")
-client.close()
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-a','--address',metavar='<address>', dest='address',help='Ipaddress  connection target')
+    parser.add_argument('-p','--port',dest='port',metavar='<port>',type=int,help='Port connection')
+    parser.add_argument('-b', '--bind-port', dest='bind',metavar='<bind_port>',type=int,help='Bind port connection')
+    parser.add_argument('-pw', '--password', dest='password',metavar='<password>',help='password')
+    parser.add_argument('-c','--command' ,dest='command',metavar='command bash',help='send command on target')
+    parser.add_argument('-f', '--file',dest='file',metavar='<file>',help='batch_file command send')
+    options = parser.parse_args()
+    if options.address and options.port and options.bind:
+        client = Client(options.address, options.port, options.bind)
+        if options.password and options.file:
+            try:
+                fd = open(options.file, "r")
+            except IOError:
+                print "cannot open", options.file
+                exit(1)
+            client.password(options.password)
+            client.loop_batch(options.file, fd)
+        elif options.password and options.command:
+            client.password(options.password)
+            client.run_command(options.command + "\n")
+        else:
+            if options.password:
+                client.connection(options.password)
+            else:client.connection()
+            client.tty_raw_mode()
+            client.loop()
+        client.close()
+    parser.print_help()
