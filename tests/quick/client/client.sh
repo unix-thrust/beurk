@@ -12,18 +12,19 @@ cd `git rev-parse --show-toplevel`
 # Ensure running client without arguments prints the correct help message
 ./client.py | grep "client.py <address> <port> <bind_port> \[password\] \[batch_file | -c command\]"
 
-# Check 'Socket error' output error
+# Check socket error
 ./client.py beurk 3005 6666 2>&1 |
-    grep "host \[beurk\], port \[3005\], bind port \[6666\] : Socket error"
+    grep "host \[beurk\], port \[3005\], bind port \[6666\] : \[Errno -2\] Name or service not known"
+./client.py 777.777.777.777 3005 6666 2>&1 |
+    grep "host \[777.777.777.777\], port \[3005\], bind port \[6666\] : \[Errno -2\] Name or service not known"
 
-# Check 'Connexion refused' output error
+# Check connection error
 ./client.py 127.0.0.1 3005 64835 2>&1 |
-    grep "host \[127.0.0.1\], port \[3005\], bind port \[64835\] : Connection refused"
+    grep "host \[127.0.0.1\], port \[3005\], bind port \[64835\] : \[Errno 111\] Connection refused"
 
-# As we were unable to distinguish "Bind Error" from "Connection refused"
-# errors with python 2.6, this test is disabled for this version of python
-if python --version 2>&1 | grep -Eqv '^Python 2\.6'; then
-    # check 'Bind Error' output error
-    ./client.py 127.7.7.7 3005 77777 2>&1 |
-        grep "host \[127.7.7.7\], port \[3005\], bind port \[77777\] : Bind error"
+# Check bind error
+if python --version 2>&1 | grep -Eq '^Python 2\.7'; then
+    # for 2.7
+    ./client.py 127.0.0.1 3005 77777 2>&1 |
+        grep "host \[127.0.0.1\], port \[3005\], bind port \[77777\] : getsockaddrarg: port must be 0-65535."
 fi
