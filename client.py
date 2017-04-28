@@ -25,14 +25,10 @@ class Client:
         try:
             self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            self.s.bind((rhost, bport))
+            self.s.bind(('0.0.0.0', bport))
             self.s.connect((rhost, rport))
-        except socket.gaierror:
-            self._netfail("Socket error")
-        except OverflowError:
-            self._netfail("Bind error")
-        except:
-            self._netfail("Connection refused")
+        except Exception as e:
+            self._netfail(str(e))
 
     @staticmethod
     def usage(name):
